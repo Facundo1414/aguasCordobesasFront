@@ -1,10 +1,11 @@
 // pages/HomePage.tsx
 import React from 'react';
 import { Box, Grid, Typography, Paper } from '@mui/material';
+import TestServer from '@/components/TestServer';
 
 export default function HomePage() {
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }} className={"h-screen"}>
+    <Box  className={"h-screen"}>
       <Typography variant="h4" gutterBottom>
         INICIO
       </Typography>
@@ -14,7 +15,7 @@ export default function HomePage() {
             <Typography variant="h6" gutterBottom>
               Título Principal
             </Typography>
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2, minHeight: "15rem" }}>
               {/* Aquí puedes agregar contenido */}
               Contenido del Paper principal
             </Box>
@@ -25,9 +26,8 @@ export default function HomePage() {
             <Typography variant="h6" gutterBottom>
               Testear Servidor
             </Typography>
-            <Box sx={{ mt: 2 }}>
-              {/* Aquí puedes agregar contenido */}
-              Funcion de testeo
+            <Box sx={{ mt: 2, minHeight: "10rem" }}>
+              <TestServer/>
             </Box>
           </Paper>
         </Grid>
@@ -36,7 +36,7 @@ export default function HomePage() {
             <Typography variant="h6" gutterBottom>
               Como usar la pagina?
             </Typography>
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2, minHeight: "10rem" }}>
               {/* Aquí puedes agregar contenido */}
               VIDEO tutorial
             </Box>

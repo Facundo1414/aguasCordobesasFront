@@ -24,7 +24,6 @@ export default function Dashboard() {
       <Box className="h-screen">
         <Navbar />
         <Box component="main" sx={{ p: 3, background: "#F9F7F3" }}>
-          <Toolbar />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/upload" element={<UploadPage />} />
