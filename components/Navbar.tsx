@@ -13,9 +13,9 @@ export default function Navbar() {
       <Toolbar>
         <Grid container alignItems="center" spacing={2}>
           <Grid item xs={2}>
-            <Typography variant="h6" component="div" sx={{ paddingLeft: "1rem" }}>
-              LOGO
-            </Typography>
+            <Box sx={{ flexGrow: 1, paddingLeft: "1rem" }}>
+              <img src="/logoWater.ico" alt="Logo" style={{ height: 100 }} /> {/* Ajusta el tamaño según sea necesario */}
+            </Box>
           </Grid>
           <Grid item xs={9}>
             <Box display="flex" justifyContent="left" className="font-extrabold space-x-8">

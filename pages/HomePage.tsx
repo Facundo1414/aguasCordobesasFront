@@ -5,7 +5,7 @@ import TestServer from '@/components/TestServer';
 
 export default function HomePage() {
   return (
-    <Box  className={"h-screen"}>
+    <Box  className={"h-screen"} px={"1rem"}>
       <Typography variant="h4" gutterBottom>
         INICIO
       </Typography>
