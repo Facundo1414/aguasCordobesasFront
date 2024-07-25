@@ -1,8 +1,8 @@
 // components/Dashboard.tsx
 import React, { useEffect, useState } from 'react';
 import { Box, Toolbar } from '@mui/material';
-import Sidebar from './Sidebar';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './Navbar';
 import HomePage from '@/pages/HomePage';
 import UploadPage from '@/pages/UploadPage';
 import TestPage from '@/pages/TestPage';
@@ -20,9 +20,9 @@ export default function Dashboard() {
 
   return (
     <Router>
-      <Box sx={{ display: 'flex' }} className="h-screen bg-green-400">
-        <Sidebar />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }} className="bg-slate-400">
+      <Box className="h-screen">
+        <Navbar />
+        <Box component="main" sx={{ p: 3, background: "#F9F7F3" }}>
           <Toolbar />
           <Routes>
             <Route path="/" element={<HomePage />} />
