@@ -16,7 +16,7 @@ const TestPage = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3 }} className={"h-screen"}>
       <Typography variant="h4" gutterBottom>
         Página de Testeo
       </Typography>

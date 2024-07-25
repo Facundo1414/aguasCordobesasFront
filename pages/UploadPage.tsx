@@ -39,12 +39,12 @@ export default function UploadPage() {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3 }} className={"h-screen"}>
       <Typography variant="h4" gutterBottom>
         Subir datos de los clientes
       </Typography>
       <form onSubmit={handleSubmit}>
-        <Paper elevation={3} sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }} {...getRootProps()}>
+        <Paper elevation={6} sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }} {...getRootProps()}>
           <input {...getInputProps()} />
           {
             !file ? (

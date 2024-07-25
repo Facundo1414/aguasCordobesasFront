@@ -5,6 +5,9 @@ import { Box, Grid, Typography, Paper } from '@mui/material';
 export default function HomePage() {
   return (
     <Box sx={{ flexGrow: 1, p: 3 }} className={"h-screen"}>
+      <Typography variant="h4" gutterBottom>
+        INICIO
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Paper elevation={6} sx={{ p: 2, borderRadius: 2, bgcolor: "#B5E2FA" }}>
