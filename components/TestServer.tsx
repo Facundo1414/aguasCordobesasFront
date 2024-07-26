@@ -4,19 +4,20 @@ import { get } from '../services/apiService'; // Asegúrate de que tu servicio e
 import { AxiosResponse } from 'axios'; // Asegúrate de que Axios esté instalado
 
 const TestServer = () => {
-  const [response, setResponse] = useState<string | null>(null);
+  const [response, setResponse] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleCheckHealth = async () => {
     try {
-      const result: AxiosResponse = await get('health');
-      // Asegúrate de que 'result.data' contenga el mensaje que deseas mostrar
-      setResponse(result.data); // Actualiza el estado con el contenido de la respuesta
+      const result: AxiosResponse<string> = await get('health', {
+        responseType: 'text', // Asegúrate de que Axios sepa que la respuesta es texto
+      });
+      setResponse(result); // Actualiza el estado con el contenido de la respuesta
       setError(null); // Limpiar el error en caso de éxito
     } catch (error) {
       console.error('Error checking health:', error);
       setResponse(null); // Limpiar la respuesta exitosa en caso de error
-      setError('Error con la coneccion al servidor.');
+      setError('Error con la conexión al servidor.');
     }
   };
 
@@ -32,9 +33,8 @@ const TestServer = () => {
       </Button>
       {response && (
         <Box sx={{ mt: 2 }}>
-          <Typography variant="body1">
-            {response}
-          </Typography>
+          {/* Mostrar HTML seguro */}
+          <Typography variant="body1" component="div" dangerouslySetInnerHTML={{ __html: response }} />
         </Box>
       )}
       {error && (

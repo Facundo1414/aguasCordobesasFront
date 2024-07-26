@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 
 // Crear una instancia de Axios con la configuración base de tu API
 const api: AxiosInstance = axios.create({
-  baseURL: 'https://aguas-cordobesas.vercel.app', // Cambia esto a la URL de tu API
+  baseURL: 'http://localhost:3000', // Cambia esto a la URL de tu API
   timeout: 10000, // Tiempo máximo de espera para una solicitud en milisegundos
   headers: {
     'Content-Type': 'application/json',
