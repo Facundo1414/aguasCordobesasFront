@@ -2,6 +2,7 @@
 import { useCallback, useState } from 'react';
 import { Typography, Button, Box, Paper } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
+import { uploadData } from "../services/apiService";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -24,14 +25,14 @@ export default function UploadPage() {
       const formData = new FormData();
       formData.append('file', file);
 
+      
       try {
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
+        const response = await uploadData('/upload/excel', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
-
-        const result = await response.json();
-        console.log(result);
+        console.log(response);
       } catch (error) {
         console.error('Error uploading file:', error);
       }
