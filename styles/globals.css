@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Puedes agregar tus estilos personalizados aquí, si es necesario */
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  /* Agrega solo las variables necesarias para tu diseño */
+}
