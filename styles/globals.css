@@ -7,5 +7,10 @@
 :root {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
+  --font-montserrat: 'Montserrat', sans-serif;
   /* Agrega solo las variables necesarias para tu diseño */
+}
+
+body {
+  font-family: var(--font-montserrat);
 }

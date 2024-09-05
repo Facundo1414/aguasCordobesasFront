@@ -1,11 +1,11 @@
 // app/fonts.ts
-import { Rubik } from 'next/font/google'
+import { Montserrat } from 'next/font/google'
 
-const rubik = Rubik({
+const montserrat = Montserrat({
   subsets: ['latin'],
-  variable: '--font-rubik',
+  variable: '--font-montserrat',
 })
 
 export const fonts = {
-  rubik,
+  montserrat,
 }
