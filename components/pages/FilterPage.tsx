@@ -3,7 +3,7 @@ import { Box, Button, Flex, Heading, Text, Image, useToast, Tabs, TabList, Tab, 
 import ExcelTable from '../ExcelTable';
 import * as XLSX from 'xlsx';
 import { uploadExcelFile, checkLoginWsp, getFetchQRCode, getFileByName  } from '@/services/apiService';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 
 const FilterPage = () => {
