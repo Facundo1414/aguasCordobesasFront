@@ -27,6 +27,7 @@ const FilterPage = () => {
   const [tableData2, setTableData2] = useState<any[][]>([]);
   const [tableData3, setTableData3] = useState<any[][]>([]);  
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [tableSelect, setTableSelect] = useState<string>("");
 
 
   const checkLoginStatus = async () => {
@@ -221,20 +222,22 @@ const FilterPage = () => {
   };
   
   const handleSendDebts = () => {
-    if (tableData1.length > 0) {
-      // Descargar el archivo de la tabla 1
+    if (tableSelect === "") {
+      return;
+    }
+    
+    if (tableSelect === "0") {
       const ws = XLSX.utils.aoa_to_sheet(tableData1);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Clientes sin WhatsApp');
       XLSX.writeFile(wb, excelFileName || 'Clientes_sin_WhatsApp.xlsx');
-    } else if (tableData2.length > 0) {
-      // Redireccionar a la página de enviar deudas con el nombre del archivo de la tabla 2
-      router.push(`/send-debts?fileName=${savedFileNames[1]}`);
-    } else if (tableData3.length > 0) {
-      // Redireccionar a la página de enviar deudas con el nombre del archivo de la tabla 3
-      router.push(`/send-debts?fileName=${savedFileNames[2]}`);
+    } else if (tableSelect === "1") {
+      router.push(`/sendDebts-page?textFile=${encodeURIComponent(savedFileNames[1])}`);
+    } else if (tableSelect === "2") {
+      router.push(`/sendDebts-page?textFile=${encodeURIComponent(savedFileNames[2])}`);
     }
   };
+  
   
   
   
@@ -346,9 +349,9 @@ const FilterPage = () => {
       <Box mt={6} bg="white" p={6} shadow="md" rounded="lg">
         <Tabs isFitted variant='line' colorScheme='blue' align='center'>
           <TabList>
-            <Tab>Clientes sin Whats App</Tab>
-            <Tab>Clientes con Plan PA01</Tab>
-            <Tab>Clientes otros Planes</Tab>
+            <Tab onClick={() => setTableSelect("0")}>Clientes sin Whats App</Tab>
+            <Tab onClick={() => setTableSelect("1")}>Clientes con Plan PA01</Tab>
+            <Tab onClick={() => setTableSelect("2")}>Clientes otros Planes</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>

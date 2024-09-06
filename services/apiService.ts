@@ -86,4 +86,34 @@ export const getFileByName = async (fileName: string): Promise<Blob> => {
   }
 };
 
+export const sendAndscrape = async (fileName: string): Promise<string> => {
+  try {
+    const response = await fetch(`http://localhost:3000/process/process-file/${fileName}`, {
+      method: 'POST',
+    });
+
+    if (response.ok) {
+      const data = await response.json(); // Obtener los datos de la respuesta
+
+      if (data.file) {
+        // Si hay un archivo, devolver la URL o ruta del archivo para la descarga
+        return data.file;
+      } else {
+        // Si no hay archivo, devolver el mensaje de éxito
+        return data.message;
+      }
+    } else {
+      // Manejar errores HTTP
+      const error = await response.json();
+      throw new Error(error.message || 'Error desconocido');
+    }
+  } catch (error: any) {
+    // Manejar errores de red u otros errores
+    console.error('Error al iniciar el proceso:', error);
+    throw new Error(error.message || 'Error al iniciar el proceso');
+  }
+};
+
+
+
 export default api;
