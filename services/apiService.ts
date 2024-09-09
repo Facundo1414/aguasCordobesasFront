@@ -5,6 +5,8 @@ const api: AxiosInstance = axios.create({
   timeout: 10000, 
 });
 
+export const baseURLAPI = 'http://localhost:3000';
+
 // Funciones para interactuar con la API
 export const get = (url: string, params?: object) => api.get(url, { params });
 export const post = (url: string, data: object) => api.post(url, data);
@@ -86,22 +88,27 @@ export const getFileByName = async (fileName: string): Promise<Blob> => {
   }
 };
 
-export const sendAndscrape = async (fileName: string): Promise<string> => {
+export const sendAndscrape = async (fileName: string): Promise<{ message: string, file?: Blob }> => {
   try {
     const response = await fetch(`http://localhost:3000/process/process-file/${fileName}`, {
       method: 'POST',
     });
 
     if (response.ok) {
-      const data = await response.json(); // Obtener los datos de la respuesta
+      const contentType = response.headers.get('Content-Type');
+      let message = 'Proceso completado con éxito.';
+      let file: Blob | undefined;
 
-      if (data.file) {
-        // Si hay un archivo, devolver la URL o ruta del archivo para la descarga
-        return data.file;
-      } else {
-        // Si no hay archivo, devolver el mensaje de éxito
-        return data.message;
+      if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+        // Si la respuesta es un archivo Excel, maneja el archivo
+        file = await response.blob();
+      } else if (contentType && contentType.includes('application/json')) {
+        // Si la respuesta es JSON, extrae el mensaje
+        const data = await response.json();
+        message = data.message || message;
       }
+
+      return { message, file };
     } else {
       // Manejar errores HTTP
       const error = await response.json();
@@ -113,6 +120,7 @@ export const sendAndscrape = async (fileName: string): Promise<string> => {
     throw new Error(error.message || 'Error al iniciar el proceso');
   }
 };
+
 
 
 

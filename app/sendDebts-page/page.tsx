@@ -2,7 +2,6 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import Navbar from "@/components/Navbar";
 import SendDebtsPage from "@/components/pages/SendDebtsPage";
 
 export default function SendDebtsPageRoute() {
@@ -11,7 +10,6 @@ export default function SendDebtsPageRoute() {
 
   return (
     <>
-      <Navbar/>
       <SendDebtsPage textFile={textFile}/>
     </>
   );

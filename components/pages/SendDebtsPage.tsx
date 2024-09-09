@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import BackendLogComponent from '../BackendLogComponent';
 import Loader from '../extra/Loader';
 import { sendAndscrape } from '@/services/apiService';
+import { useGlobalContext } from '@/app/providers/GlobalContext';
 
 // Props para el componente
 interface SendDebtsPageProps {
@@ -12,33 +13,53 @@ interface SendDebtsPageProps {
 
 const SendDebtsPage: React.FC<SendDebtsPageProps> = ({ textFile }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isDownloaded, setIsDownloaded] = useState(false);
+  const [processComplete, setProcessComplete] = useState(false);
+  const [excelFile, setExcelFile] = useState<Blob | null>(null); // Archivo Excel
+  const [message, setMessage] = useState<string | null>(null); // Mensaje del servidor
   const router = useRouter();
-  const toast = useToast(); // Hook para los toasts
+  const toast = useToast();
+  const {
+    pa01PlanClients,
+    setPa01PlanClients,
+    otherPlansClients,
+    setOtherPlansClients,
+  } = useGlobalContext(); 
 
   // Función para iniciar el proceso
   const handleStartProcess = async () => {
     setIsLoading(true);
+    setProcessComplete(false); // Resetea el estado del proceso
 
     try {
       const response = await sendAndscrape(textFile);
 
-      if (response === 'Proceso completado con éxito, no se encontraron clientes sin deuda.' || response === 'Proceso completado con éxito.') {
-        toast({
-          title: 'Proceso completado',
-          description: 'Las deudas han sido enviadas con éxito.',
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: 'Hubo un problema al iniciar el proceso.',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
+      setProcessComplete(true);
+      setMessage(response.message);
+
+      if (response.file) {
+        setExcelFile(response.file);
       }
+
+      if (textFile === pa01PlanClients.fileName) {
+        setPa01PlanClients({
+          ...pa01PlanClients,
+          isSentOrUsed: true
+        })
+      } else if (textFile === otherPlansClients.fileName) {
+        setOtherPlansClients({
+          ...otherPlansClients,
+          isSentOrUsed: true
+        })
+      }
+
+      toast({
+        title: 'Proceso completado',
+        description: response.message,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Error al iniciar el proceso:', error);
       toast({
@@ -55,6 +76,19 @@ const SendDebtsPage: React.FC<SendDebtsPageProps> = ({ textFile }) => {
 
   const handleGoBack = () => {
     router.back();
+  };
+
+  const handleDownloadExcel = () => {
+    if (excelFile) {
+      const url = window.URL.createObjectURL(excelFile);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Clientes sin deudas.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setIsDownloaded(true)
+    }
   };
 
   return (
@@ -86,27 +120,43 @@ const SendDebtsPage: React.FC<SendDebtsPageProps> = ({ textFile }) => {
                 <Loader />
                 <Text mt={4} fontWeight="semibold">Procesando... Esto puede tardar unos minutos</Text>
               </>
+            ) : processComplete ? (
+              <Flex direction="column" align="center" mb={6}>
+                <Text fontSize="xl" fontWeight="bold" mb={4}>
+                  El proceso se completo con exito.
+                </Text>
+                <Flex gap={8}>
+                  {excelFile && (
+                    <Button colorScheme="blue" onClick={handleDownloadExcel} isDisabled={isDownloaded}>
+                      Descargar Excel de clientes sin deudas
+                    </Button>
+                  )}
+                  <Button colorScheme="orange" onClick={handleGoBack}>
+                    Volver a la Página Anterior
+                  </Button>
+                </Flex>
+              </Flex>
             ) : (
               <Text mb={4} fontWeight="semibold">
                 Presiona "Iniciar proceso" para comenzar
               </Text>
             )}
 
-            {/* Botones */}
-            <Flex mt={8} gap={4}>
-              <Button colorScheme="orange" onClick={handleGoBack} isDisabled={isLoading}>
-                Volver a la Página Anterior
-              </Button>
-              <Button
-                colorScheme="green"
-                onClick={handleStartProcess}
-                isLoading={isLoading}
-                loadingText="Iniciando..."
-                isDisabled={isLoading}
-              >
-                Iniciar Proceso
-              </Button>
-            </Flex>
+            {/* Botón para iniciar el proceso */}
+            {!isLoading && !processComplete && (
+              <Flex justifyContent={"space-around"} w={"100%"}>
+                <Button colorScheme="orange" onClick={handleGoBack}>
+                  Volver a la Página Anterior
+                </Button>
+                <Button
+                  colorScheme="green"
+                  onClick={handleStartProcess}
+                  isDisabled={isLoading}
+                >
+                  Iniciar Proceso
+                </Button>
+              </Flex>
+            )}
           </Flex>
         </Flex>
       </Box>

@@ -9,7 +9,7 @@ export default function Navbar() {
     <Box bg="blue.600" color="white" p={4}>
       <Flex align="center" maxW="container.xl" mx="auto">
         <Box flexShrink={0} pl={4}>
-          <Image src="/logoWater.ico" alt="Logo" h={16} /> {/* Ajusta el tamaño según sea necesario */}
+          <Image src="/logoWater.png" alt="Logo" h={16}/>
         </Box>
         <Flex flexGrow={1} justify="start" ml={8} gap={8}>
           <Link href="/" passHref>

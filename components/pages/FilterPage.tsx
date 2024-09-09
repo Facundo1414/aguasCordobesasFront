@@ -1,157 +1,103 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Flex, Heading, Text, Image, useToast, Tabs, TabList, Tab, TabPanels, TabPanel, Stepper, Step, StepStatus, StepIndicator, StepTitle, StepDescription, StepSeparator, List, ListItem } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Text, Image, useToast, Tabs, TabList, Tab, TabPanels, TabPanel, Stepper, Step, StepStatus, StepIndicator, StepTitle, StepDescription, StepSeparator, List, ListItem, Spinner } from '@chakra-ui/react';
 import ExcelTable from '../ExcelTable';
 import * as XLSX from 'xlsx';
 import { uploadExcelFile, checkLoginWsp, getFetchQRCode, getFileByName  } from '@/services/apiService';
 import { useRouter } from 'next/navigation';
+import { useGlobalContext } from '@/app/providers/GlobalContext';
 
 
 const FilterPage = () => {
+  //DATA
   const [excelData, setExcelData] = useState<any[]>([]);
   const [excelFileName, setExcelFileName] = useState<string | null>(null);
-  const [activeStep, setActiveStep] = useState(0);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [filePath, setFilePath] = useState<string | null>(null);
+  //QR
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>();
   const [qrCode, setQrCode] = useState<string | null>(null);
-  const toast = useToast();
-  const router = useRouter();
+  const [isLoadingQr, setIsLoadingQr] = useState<boolean>(true);
+  //STEPS
+  const [activeStep, setActiveStep] = useState(0);
   const steps = [
     { title: "Paso 1", description: "Logearse" },
     { title: "Paso 2", description: "Filtrar Clientes" },
     { title: "Paso 3", description: "Seleccionar Tabla" },
   ];
-  const [filePath, setFilePath] = useState<string | null>(null);
-  const [savedFileNames, setSavedFileNames] = useState<string[]>([]);
+  //
+  const toast = useToast();
+  const router = useRouter();
 
-  const [tableData1, setTableData1] = useState<any[][]>([]);
-  const [tableData2, setTableData2] = useState<any[][]>([]);
-  const [tableData3, setTableData3] = useState<any[][]>([]);  
+  // Table DATA
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tableSelect, setTableSelect] = useState<string>("");
 
+  //Global context
+  const {
+    excelFileByUser,
+    setExcelFileByUser, 
+    noWhatsappClients,
+    setNoWhatsappClients,
+    pa01PlanClients,
+    setPa01PlanClients,
+    otherPlansClients,
+    setOtherPlansClients,
+  } = useGlobalContext(); // Utilizar el contexto global
 
-  const checkLoginStatus = async () => {
-    try {
-      const response = await checkLoginWsp();
-      
-      if (response.isLoggedIn) {
-        setIsLoggedIn(true);
-        setIsButtonDisabled(false);
-      } else {
-        setIsLoggedIn(false);
-        setIsButtonDisabled(true);
-      }
-    } catch (error) {
-      console.error('Error al verificar el estado de autenticación:', error);
-      toast({
-        title: 'Error de autenticación.',
-        description: 'No se pudo verificar el estado de autenticación. Inténtalo de nuevo.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+
+  // Funtions
+  useEffect(() => {
+    setExcelData(excelFileByUser.data);
+    setExcelFileName(excelFileByUser.fileName);
+    if (noWhatsappClients.data.length || pa01PlanClients.data.length || otherPlansClients.data.length) {
+      setActiveStep(2);
     }
-  };
-  
+  }, []);
 
   useEffect(() => {
-    const fetchQRCode = async () => {
+    const checkLoginStatusAndFetchQRCode = async () => {
       try {
-        const qrBlob = await getFetchQRCode();
-        if (qrBlob) {
-          setQrCode(URL.createObjectURL(qrBlob));
+        const loginResponse = await checkLoginWsp();
+        if (loginResponse.isLoggedIn) {
+          setIsLoggedIn(true);
+          setIsButtonDisabled(false);
+          if (noWhatsappClients.data.length || pa01PlanClients.data.length || otherPlansClients.data.length) {
+            setActiveStep(2);
+          } else {
+            setActiveStep(1);
+          }
         } else {
-          console.error('Failed to fetch QR code');
+          setIsLoggedIn(false);
+          setIsButtonDisabled(true);
+        }
+  
+        if (!loginResponse.isLoggedIn) {
+          const qrBlob = await getFetchQRCode();
+          if (qrBlob) {
+            setQrCode(URL.createObjectURL(qrBlob));
+          } else {
+            console.error('Failed to fetch QR code');
+          }
         }
       } catch (error) {
-        console.error('Error fetching QR code:', error);
+        console.error('Error:', error);
+        toast({
+          title: 'Error de autenticación.',
+          description: 'No se pudo verificar el estado de autenticación o obtener el QR. Inténtalo de nuevo.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
+        setIsLoadingQr(false);
       }
     };
-
-    fetchQRCode();
+  
+    checkLoginStatusAndFetchQRCode();
   }, []);
-
-  const handleNextStep = () => {
-    setActiveStep((prevStep) => prevStep + 1);
-  };
-
-  const handleUpload = async () => {
-    try {
-      setIsButtonDisabled(true); 
-
-      const base64String = sessionStorage.getItem('ExcelFile');
-      if (base64String) {
-        const binaryString = atob(base64String);
-        const binaryLen = binaryString.length;
-        const bytes = new Uint8Array(binaryLen);
-        for (let i = 0; i < binaryLen; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        // Crear un archivo .xlsx desde los bytes
-        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const formData = new FormData();
-        formData.append('file', blob, 'data.xlsx');
-
-        // Enviar el archivo al servidor
-        const response = await uploadExcelFile('/upload/excel', formData);
-
-        if (response && response.message === "Archivo subido y procesado exitosamente") {
-          const { filePath, savedFileNames } = response;
-
-          // Almacena esta información en el estado para su posterior uso
-          setFilePath(filePath);
-          setSavedFileNames(savedFileNames);
-          fetchFilesData(savedFileNames)
-
-          toast({
-            title: 'Datos enviados.',
-            description: 'Los datos se han filtrado y enviado con éxito.',
-            status: 'success',
-            duration: 5000,
-            isClosable: true,
-          });
-        } else {
-          throw new Error('La respuesta del servidor no es la esperada');
-        }
-      }
-    } catch (error) {
-      console.error('Error al enviar los datos:', error);
-      setIsButtonDisabled(false); // Reactivar el botón si hay error
-    
-      toast({
-        title: 'Error al enviar los datos.',
-        description: 'Hubo un problema al enviar los datos. Inténtalo de nuevo.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  };
   
 
-  useEffect(() => {
-    const base64String = sessionStorage.getItem('ExcelFile');
-    const fileName = sessionStorage.getItem('excelFileName');
-    
-    if (base64String) {
-      const binaryString = atob(base64String);
-      const binaryLen = binaryString.length;
-      const bytes = new Uint8Array(binaryLen);
-      for (let i = 0; i < binaryLen; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const workbook = XLSX.read(bytes, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-      setExcelData(data);
-      setExcelFileName(fileName);
-    }
-  }, []);
-
   const handleLoginConfirmation = async () => {
-    // Verifica si el usuario está autenticado antes de continuar
-    await checkLoginStatus();
     if (!isLoggedIn) {
       toast({
         title: 'Usuario no autenticado.',
@@ -170,13 +116,86 @@ const FilterPage = () => {
         isClosable: true,
       });
     }
-    setIsButtonDisabled(false);
-    setActiveStep(1)
   };
 
+  const handleNextStep = () => {
+    setActiveStep((prevStep) => prevStep + 1);
+  };
 
+  const handleUpload = async () => {
+    if (excelFileByUser.isSentOrUsed) {
+      setActiveStep(2);
+      setIsLoading(false);
+      toast({
+        title: 'Ya se han filtrado los datos.',
+        description: 'Los datos se han filtrado con éxito, ya no es necesario volverlos a filtrar.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      setIsButtonDisabled(true); 
+  
+      // Verifica si hay datos en el estado excelData
+      if (excelData && excelData.length > 0) {
+        // Convierte los datos de Excel en un archivo Blob
+        const worksheet = XLSX.utils.aoa_to_sheet(excelData); 
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  
+        // Crea un FormData y añade el archivo Blob
+        const formData = new FormData();
+        formData.append('file', blob, 'data.xlsx');
+  
+        // Envía el archivo al servidor
+        const response = await uploadExcelFile('/upload/excel', formData);
+  
+        if (response && response.message === "Archivo subido y procesado exitosamente") {
+          const { filePath, savedFileNames } = response;
+  
+          // Almacena esta información en el estado para su posterior uso
+          setFilePath(filePath);
+          fetchFilesData(savedFileNames);
+  
+          toast({
+            title: 'Datos enviados.',
+            description: 'Los datos se han filtrado y enviado con éxito.',
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          });
+          setExcelFileByUser({
+            ...excelFileByUser,
+            isSentOrUsed: true
+          });
+        } else {
+          throw new Error('La respuesta del servidor no es la esperada');
+        }
+      } else {
+        throw new Error('No hay datos en el estado de Excel');
+      }
+    } catch (error) {
+      console.error('Error al enviar los datos:', error);
+      setIsButtonDisabled(false);
+  
+      toast({
+        title: 'Error al enviar los datos.',
+        description: 'Hubo un problema al enviar los datos. Inténtalo de nuevo.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+  
   const fetchFilesData = async (fileNames: string[]) => {
     setIsLoading(true);
+
     try {
       const fetchedData = await Promise.all(
         fileNames.map(async (fileName) => {
@@ -201,12 +220,11 @@ const FilterPage = () => {
       );
   
       // Distribuir los datos en el estado según el número de archivos
-      if (dataArrays.length > 0) setTableData1(dataArrays[0]);
-      if (dataArrays.length > 1) setTableData2(dataArrays[1]);
-      if (dataArrays.length > 2) setTableData3(dataArrays[2]);
-
+      if (dataArrays.length > 0) setNoWhatsappClients({ data: dataArrays[0], fileName: fileNames[0], isSentOrUsed: false });
+      if (dataArrays.length > 1) setPa01PlanClients({ data: dataArrays[1], fileName: fileNames[1], isSentOrUsed: false });
+      if (dataArrays.length > 2) setOtherPlansClients({ data: dataArrays[2], fileName: fileNames[2], isSentOrUsed: false });
+      
       setActiveStep(2);
-  
     } catch (error) {
       console.error('Error al obtener los archivos ya filtrados:', error);
       toast({
@@ -227,21 +245,68 @@ const FilterPage = () => {
     }
     
     if (tableSelect === "0") {
-      const ws = XLSX.utils.aoa_to_sheet(tableData1);
+      if (noWhatsappClients.data.length === 1 && noWhatsappClients.data[0].length > 0) {
+        toast({
+          title: 'No hay contenido para descargar.',
+          description: 'La tabla que seleccionaste no contiene datos.',
+          status: 'warning',
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
+      const ws = XLSX.utils.aoa_to_sheet(noWhatsappClients.data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Clientes sin WhatsApp');
       XLSX.writeFile(wb, excelFileName || 'Clientes_sin_WhatsApp.xlsx');
     } else if (tableSelect === "1") {
-      router.push(`/sendDebts-page?textFile=${encodeURIComponent(savedFileNames[1])}`);
+      if (pa01PlanClients.isSentOrUsed) {
+        toast({
+          title: 'Ya se han enviado las deudas.',
+          description: 'Las deudas ya se han enviado con éxito, ya no es necesario volverlas a enviar.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
+      if (pa01PlanClients.data.length < 1) {
+        toast({
+          title: 'No hay contenido para enviar.',
+          description: 'La tabla que seleccionaste no contiene datos.',
+          status: 'warning',
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
+      router.push(`/sendDebts-page?textFile=${encodeURIComponent(pa01PlanClients.fileName)}`);
     } else if (tableSelect === "2") {
-      router.push(`/sendDebts-page?textFile=${encodeURIComponent(savedFileNames[2])}`);
+      if (otherPlansClients.isSentOrUsed) {
+        toast({
+          title: 'Ya se han enviado las deudas.',
+          description: 'Las deudas ya se han enviado con éxito, ya no es necesario volverlas a enviar.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
+      if (otherPlansClients.data.length < 1) {
+        toast({
+          title: 'No hay contenido para enviar.',
+          description: 'La tabla que seleccionaste no contiene datos.',
+          status: 'warning',
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
+      router.push(`/sendDebts-page?textFile=${encodeURIComponent(otherPlansClients.fileName)}`);
     }
   };
   
   
-  
-  
-
   return (
     <Box p={6} h="full" w="full" bg="gray.50">
       {/* Stepper */}
@@ -284,14 +349,28 @@ const FilterPage = () => {
         </Box>
 
         {/* QR Code */}
-        <Box border={"solid 3px green"} display="flex" justifyContent={"center"} alignItems={"center"}>
-          {qrCode && (
+        <Box border="solid 3px green" display="flex" justifyContent="center" alignItems="center" boxSize="200px">
+          {isLoggedIn ? (
             <Image 
-              src={qrCode} 
-              alt="Código QR para WhatsApp" 
-              boxSize="200px" 
-              mx="auto"
+              src="loggedQR.png"
+              alt="Usuario autenticado"
+              boxSize="100%"
+              objectFit="cover"
             />
+          ) : isLoadingQr ? (
+            <Spinner 
+              size="xl" 
+              color="green.500" 
+            />
+          ) : qrCode ? (
+            <Image 
+              src={qrCode}
+              alt="Código QR para WhatsApp"
+              boxSize="100%"
+              objectFit="cover"
+            />
+          ) : (
+            <Text>Cargando QR...</Text>
           )}
         </Box>
       </Flex>
@@ -359,7 +438,7 @@ const FilterPage = () => {
                 <Text>Cargando datos...</Text>
               ) : (
                 <>
-                <ExcelTable excelData={tableData1} />
+                <ExcelTable excelData={noWhatsappClients.data} />
                 <Flex justifyContent={"flex-end"}>
                   <Button
                     colorScheme="blue" 
@@ -379,7 +458,7 @@ const FilterPage = () => {
                 <Text>Cargando datos...</Text>
               ) : (
                 <>
-                <ExcelTable excelData={tableData2} />
+                <ExcelTable excelData={pa01PlanClients.data} />
                 <Flex justifyContent={"flex-end"}>
                   <Button
                     colorScheme="blue" 
@@ -399,7 +478,7 @@ const FilterPage = () => {
                 <Text>Cargando datos...</Text>
               ) : (
                 <>
-                  <ExcelTable excelData={tableData3} />
+                  <ExcelTable excelData={otherPlansClients.data} />
                   <Flex justifyContent={"flex-end"}>
                     <Button
                       colorScheme="blue" 

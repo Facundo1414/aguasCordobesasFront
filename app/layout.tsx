@@ -2,6 +2,8 @@
 import { fonts } from './fonts'
 import { Providers } from './providers'
 import '../styles/globals.css'
+import Breadcrumbs from '@/components/extra/Breadcrums'
+import Navbar from '@/components/Navbar'
 
 export default function RootLayout({
   children,
@@ -11,7 +13,11 @@ export default function RootLayout({
   return (
     <html lang='en' className={fonts.montserrat.variable}>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar/>
+          <Breadcrumbs />
+          {children}
+        </Providers>
       </body>
     </html>
   )

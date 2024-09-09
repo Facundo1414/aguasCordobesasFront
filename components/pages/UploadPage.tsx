@@ -4,7 +4,7 @@ import { FileUploader } from 'react-drag-drop-files';
 import * as XLSX from 'xlsx';
 import ExcelTable from '../ExcelTable';
 import { useRouter } from 'next/navigation';
-
+import { useGlobalContext } from '@/app/providers/GlobalContext';
 
 const fileTypes = ["XLS", "XLSX"];
 
@@ -17,7 +17,10 @@ export default function UploadPage() {
   const toast = useToast();
   const router = useRouter(); 
 
-
+  const { 
+    excelFileByUser,
+    setExcelFileByUser,
+  } = useGlobalContext();
 
   const handleFileChange = (file: File) => {
     setFile(file);
@@ -41,14 +44,15 @@ export default function UploadPage() {
           if (json.length > 0) {
               const normalizedData = json.map(row => {
                   const newRow = [...row];
+                  // Normalizamos el tamaño de las filas para tener al menos 8 columnas
                   while (newRow.length < 8) {
                       newRow.push("");
                   }
-                  newRow[2] = newRow[2] || "";
+                  newRow[2] = newRow[2] || ""; // Aseguramos que la columna 3 no esté vacía
                   return newRow;
               });
 
-              setExcelData(normalizedData);
+              setExcelData(normalizedData); // Guardamos en el estado local para mostrar en la tabla
               toast({
                   title: "Archivo procesado con éxito.",
                   description: "Los datos han sido cargados.",
@@ -70,7 +74,7 @@ export default function UploadPage() {
           setLoading(false);
       };
       reader.readAsArrayBuffer(file);
-  }, 1000); // Retraso de 1 segundo
+    }, 1000); // Retraso de 1 segundo
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -80,15 +84,15 @@ export default function UploadPage() {
 
   const confirmSubmit = async () => {
     setIsOpen(false);
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64String = (reader.result as string).split(',')[1]; // Extract base64 part
-        sessionStorage.setItem('excelFileName', file.name);
-        sessionStorage.setItem('ExcelFile', base64String); // Guardar el archivo en sessionStorage
-        router.push('/filter-page');
-      };
-      reader.readAsDataURL(file); // Leer el archivo como Data URL
+    if (file && excelData) {
+      // Aquí guardamos el archivo procesado en el contexto global en el formato correcto
+      setExcelFileByUser({
+        data: excelData,  // Los datos procesados del archivo
+        fileName: file.name,  // El nombre del archivo
+        isSentOrUsed: false,  // Inicializamos el estado como no enviado
+      });
+
+      router.push('/filter-page');
     }
   };
   
@@ -106,8 +110,6 @@ export default function UploadPage() {
     });
   };
 
-
-
   return (
     <Box p={4} h="100vh" bg="gray.50">
       <Heading as="h1" size="xl" mb={4} color="gray.800">
@@ -115,18 +117,18 @@ export default function UploadPage() {
       </Heading>
       <form onSubmit={handleSubmit}>
         <Box height={"12rem"} p={2} border="1px" borderColor="gray.300" rounded="lg" shadow="md" display="flex" flexDirection="column" alignItems={"center"} mb={6}>
-          {file? (
+          {file ? (
               <Text mt={6} color={"green.400"} fontWeight={600} fontSize={22}>
                 {file.name}
               </Text>
-            ): (
+            ) : (
               <Text mt={6} color={"green.400"} fontWeight={600} fontSize={22}>
                 Ingrese el archivo
               </Text>
           )}
 
           <Flex height={"60%"} width={"100%"} justifyContent={"center"} alignItems={"center"}>
-            <FileUploader handleChange={handleFileChange} name="file" types={fileTypes} alignSelf={"center"}/>
+            <FileUploader handleChange={handleFileChange} name="file" types={fileTypes} alignSelf={"center"} />
           </Flex>
           
           <Flex height={"30%"} width={"100%"} padding={6} justifyContent={"space-between"} alignItems={"center"}>
@@ -140,7 +142,7 @@ export default function UploadPage() {
         </Box>
       </form>
 
-      <ExcelTable excelData={excelData}/>
+      <ExcelTable excelData={excelData} />
 
       <AlertDialog
         isOpen={isOpen}
@@ -154,7 +156,7 @@ export default function UploadPage() {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Se reedireccionara a la pagina para filtrar el archivo.
+              Se redireccionará a la página para filtrar el archivo.
             </AlertDialogBody>
 
             <AlertDialogFooter>
