@@ -9,17 +9,17 @@ export default function HomePage() {
         {/* Encabezado con logo y texto */}
         <GridItem colSpan={12}>
           <Flex borderRadius="lg" bg="white" shadow="lg">
-            <Flex width={["100%", "30%"]} justifyContent="center" alignItems="center" p={4}>
-              <Box>
+            <Flex width={"30%"} justifyContent="center" alignItems="center" p={4} overflow={"hidden"}>
+              <Flex width={"40%"} flexDirection={"column"} justifyContent="center" >
                 <Heading as="h2">AQUA</Heading>
-                <Text fontWeight="normal" color="gray.600">
+                <Text fontWeight="normal" fontSize={"1.2rem"} color="gray.600">
                   Al servicio de Cclip.
                 </Text>
-              </Box>
-              <Image src="/logoWater.png" alt="Logo" boxSize={["10rem", "20rem"]} />
+              </Flex>
+              <Image width={"60%"} src="/logoWater.png" alt="Logo" boxSize={"12rem"} maxBlockSize={"15rem"} />
             </Flex>
             <Flex
-              width={["100%", "70%"]}
+              width={"70%"}
               justifyContent="center"
               alignItems="center"
               bgImage="url('/bg_topEspacioClientes.jpg')"

@@ -1,10 +1,30 @@
-// components/Navbar.tsx
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { FaHome as HomeIcon, FaCloudUploadAlt as UploadIcon, FaUser as UserIcon } from 'react-icons/fa';
-import { Box, Flex, Button, Avatar, Image } from '@chakra-ui/react';
+import { FaHome as HomeIcon, FaCloudUploadAlt as UploadIcon } from 'react-icons/fa';
+import { Box, Flex, Button, Avatar, Image, Drawer, DrawerBody, DrawerOverlay, DrawerContent, DrawerCloseButton, useDisclosure, Text } from '@chakra-ui/react';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
+  const { user, error, isLoading } = useUser();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Solo redirecciona en el lado del cliente, cuando el componente esté montado
+    if (!isLoading && !user && !error) {
+      router.push('/api/auth/login');
+    }
+  }, [user, isLoading, error, router]);
+
+  // Muestra un loader mientras verifica la autenticación
+  if (isLoading) return <p>Loading...</p>;
+
+  // Si hay error de autenticación
+  if (error) return <p>Error al autenticar</p>;
+
   return (
     <Box bg="blue.600" color="white" p={4}>
       <Flex align="center" maxW="container.xl" mx="auto">
@@ -22,16 +42,34 @@ export default function Navbar() {
               Subir archivos
             </Button>
           </Link>
-          <Link href="/test-page" passHref>
-            <Button variant="link" leftIcon={<UploadIcon />} color="white" fontSize="lg">
-              Test
-            </Button>
-          </Link>
         </Flex>
         <Box flexShrink={0}>
-          <Avatar bg="blue.300" color="blue.600" icon={<UserIcon />} />
+          {user ? (
+            <Avatar 
+              src={user?.picture ?? '/default-avatar.png'} // Imagen por defecto
+              bg="blue.300" 
+              color="blue.600" 
+              cursor="pointer" 
+              onClick={onOpen} 
+            />
+          ) : (
+            <Button onClick={() => window.location.href = '/api/auth/login'}>Iniciar sesión</Button>
+          )}
         </Box>
       </Flex>
+
+      <Drawer placement={'right'} onClose={onClose} isOpen={isOpen}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerBody padding={6} gap={6}>  
+            <Text>Bienvenido, {user?.name}</Text>
+            <Button mt={4} colorScheme="teal" onClick={() => window.location.href = '/api/auth/logout'}>
+              Cerrar sesión
+            </Button>        
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Box>
   );
 }

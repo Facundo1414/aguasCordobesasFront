@@ -121,6 +121,10 @@ export const sendAndscrape = async (fileName: string): Promise<{ message: string
   }
 };
 
+export const token = async() => {
+  return await fetch('/api/auth/me').then((res) => res.json()).then(data => data.token);
+}
+
 
 
 
