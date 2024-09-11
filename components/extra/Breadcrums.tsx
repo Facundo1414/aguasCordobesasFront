@@ -9,10 +9,10 @@ export default function Breadcrumbs() {
   const pathnames = pathname.split("/").filter((x) => x);
 
   return (
-    <Breadcrumb pl={4} py={2} spacing="8px" separator={<ChevronRightIcon color='blue.300' boxSize={8} />}>
+    <Breadcrumb display={"flex"} alignItems={"center"} h={"3rem"} pl={4} py={2} spacing="8px" separator={<ChevronRightIcon color="blue.300" boxSize={8} />}>
       <BreadcrumbItem>
         <Link href="/" passHref>
-          <BreadcrumbLink>Home</BreadcrumbLink>
+          <BreadcrumbLink as="span">Inicio</BreadcrumbLink>
         </Link>
       </BreadcrumbItem>
       {pathnames.map((pathname, index) => {
@@ -22,7 +22,9 @@ export default function Breadcrumbs() {
         return (
           <BreadcrumbItem key={href} isCurrentPage={isLast}>
             <Link href={href} passHref>
-              <BreadcrumbLink>{pathname.charAt(0).toUpperCase() + pathname.slice(1)}</BreadcrumbLink>
+              <BreadcrumbLink as={isLast ? "span" : "a"}>
+                {pathname.charAt(0).toUpperCase() + pathname.slice(1)}
+              </BreadcrumbLink>
             </Link>
           </BreadcrumbItem>
         );

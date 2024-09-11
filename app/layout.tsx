@@ -4,13 +4,14 @@ import { Providers } from './providers'
 import '../styles/globals.css'
 import Breadcrumbs from '@/components/extra/Breadcrums'
 import Navbar from '@/components/Navbar'
-import { UserProvider } from '@auth0/nextjs-auth0/client';
+import { UserProvider, useUser } from '@auth0/nextjs-auth0/client';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode,
 }) {
+
   
   return (
     <html lang='en' className={fonts.montserrat.variable}>
