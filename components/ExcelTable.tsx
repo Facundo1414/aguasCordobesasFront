@@ -60,7 +60,7 @@ const ExcelTable: React.FC<ExcelTableProps> = ({excelData}) => {
                   <Td borderColor="gray.600">Unidad {index + 1}</Td>
                   <Td borderColor="gray.600">123456789</Td>
                   <Td borderColor="gray.600">987654321</Td>
-                  <Td borderColor="gray.600">""</Td>
+                  <Td borderColor="gray.600">&quot;&quot;</Td>
                   <Td borderColor="gray.600">PA01</Td>
                   <Td borderColor="gray.600">10</Td>
                   <Td borderColor="gray.600">5</Td>
