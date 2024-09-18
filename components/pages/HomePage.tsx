@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Grid, GridItem, Heading, Text, Image, Flex, Link } from '@chakra-ui/react';
+import Link from 'next/link';
+import { Box, Grid, GridItem, Heading, Text, Image, Flex } from '@chakra-ui/react';
 import { InfoIcon, PhoneIcon, SettingsIcon, StarIcon, TimeIcon } from '@chakra-ui/icons';
 
 export default function HomePage() {
@@ -48,7 +49,7 @@ export default function HomePage() {
           <Grid templateColumns="repeat(3, 1fr)" gap={4} mt={8}>
             {/* Primera fila: 3 Cards */}
             <GridItem colSpan={1}>
-              <Link href="/servicio1">
+              <Link href="/upload-page" passHref>
                 <Box p={4} bg="teal.400" borderRadius="md" display="flex" w={"100%"} h={"6rem"} alignItems="center" as="button">
                   <InfoIcon w={8} h={8} color="white" />
                   <Text ml={4} fontSize="lg" color="white">
@@ -62,7 +63,6 @@ export default function HomePage() {
                 <Box p={4} bg="purple.400" borderRadius="md" display="flex" w={"100%"} h={"6rem"} alignItems="center" as="button">
                   <SettingsIcon w={8} h={8} color="white" />
                   <Text ml={4} fontSize="lg" color="white">
-                    Servicio 2
                   </Text>
                 </Box>
               </Link>

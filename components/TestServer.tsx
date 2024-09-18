@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Button, Text } from '@chakra-ui/react';
-import { get } from '../services/apiService'; // Asegúrate de que tu servicio esté configurado para usar Axios
+import { get } from '../app/services/apiService'; // Asegúrate de que tu servicio esté configurado para usar Axios
 import { AxiosResponse } from 'axios'; // Asegúrate de que Axios esté instalado
 
 const TestServer = () => {

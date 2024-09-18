@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, Flex, Heading, Text, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import BackendLogComponent from '../BackendLogComponent';
 import Loader from '../extra/Loader';
-import { sendAndscrape } from '@/services/apiService';
+import { sendAndscrape } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 
-// Props para el componente
-interface SendDebtsPageProps {
-  textFile: string; // El texto del archivo que se usará en el proceso
-}
 
-const SendDebtsPage: React.FC<SendDebtsPageProps> = ({ textFile }) => {
+
+const SendDebtsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [processComplete, setProcessComplete] = useState(false);
@@ -19,12 +16,22 @@ const SendDebtsPage: React.FC<SendDebtsPageProps> = ({ textFile }) => {
   const [message, setMessage] = useState<string | null>(null); // Mensaje del servidor
   const router = useRouter();
   const toast = useToast();
+  const [textFile, setTextFile] = useState<string | "">("");
   const {
     pa01PlanClients,
     setPa01PlanClients,
     otherPlansClients,
     setOtherPlansClients,
   } = useGlobalContext(); 
+
+  useEffect(() => {
+    // Solo se ejecuta en el cliente
+    const fileName = sessionStorage.getItem('textFileName');
+    if (fileName) {
+      setTextFile(fileName);
+    }
+  }, []);
+
 
   // Función para iniciar el proceso
   const handleStartProcess = async () => {
@@ -71,6 +78,7 @@ const SendDebtsPage: React.FC<SendDebtsPageProps> = ({ textFile }) => {
       });
     } finally {
       setIsLoading(false);
+      sessionStorage.removeItem('textFileNameForSend');
     }
   };
 
@@ -138,7 +146,7 @@ const SendDebtsPage: React.FC<SendDebtsPageProps> = ({ textFile }) => {
               </Flex>
             ) : (
               <Text mb={4} fontWeight="semibold">
-                Presiona "Iniciar proceso" para comenzar
+                Presiona &quot;Iniciar proceso&quot; para comenzar
               </Text>
             )}
 

@@ -1,4 +1,4 @@
-import { baseURLAPI } from '@/services/apiService';
+import { baseURLAPI } from '@/app/services/apiService';
 import { Box, Text, VStack, Spinner } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';

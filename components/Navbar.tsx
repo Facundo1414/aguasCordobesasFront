@@ -72,7 +72,7 @@ export default function Navbar() {
           <DrawerCloseButton />
           <DrawerBody padding={6} gap={6}>  
             <Text>Bienvenido, {user?.name}</Text>
-            <Button mt={4} colorScheme="teal" onClick={() => router.push('/api/auth/logout')}>
+            <Button mt={4} colorScheme="teal" onClick={() => window.location.href = '/api/auth/logout'}>
               Cerrar sesión
             </Button>        
           </DrawerBody>

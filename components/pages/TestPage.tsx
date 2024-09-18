@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Heading, Button, Text } from '@chakra-ui/react';
-import { get } from '../../services/apiService';
+import { get } from '../../app/services/apiService';
 
 const TestPage = () => {
   const [response, setResponse] = useState<string | null>(null);
