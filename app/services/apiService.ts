@@ -1,8 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios';
-import { useAuth } from '../providers/AuthContext';
 
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:3000', // Cambia esto a la URL de tu API
+  baseURL: 'http://localhost:3000', //TODO Cambia esto a la URL de tu API
   timeout: 10000,
 });
 
@@ -30,15 +29,9 @@ export const uploadData = async (url: string, data: FormData, config?: object) =
 };
 
 // Verificar el estado de autenticación en WhatsApp
-export const checkLoginWsp = async (token: any) => {
+export const checkLoginWsp = async () => {
   try {
-    const config = {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    };
-    
-    const response: AxiosResponse<any> = await api.get('/api/isLoggedIn', config);
+    const response: AxiosResponse<any> = await api.get('/api/isLoggedIn');
     return response.data;
   } catch (error) {
     console.error('Error al verificar el estado de autenticación:', error);
@@ -48,16 +41,9 @@ export const checkLoginWsp = async (token: any) => {
 
 
 // Obtener el código QR desde el servidor
-export const getFetchQRCode = async (token: any): Promise<Blob | null> => {
-  try {
-    if (!token) {
-      throw new Error('Token no disponible');
-    }
-    
+export const getFetchQRCode = async (): Promise<Blob | null> => {
+  try { 
     const config = {
-      headers: {
-        'Authorization': `Bearer ${token}`, // Agrega el token en los encabezados
-      },
       responseType: 'blob' as const, // Asegura que la respuesta sea tratada como un blob
     };
 
@@ -70,12 +56,11 @@ export const getFetchQRCode = async (token: any): Promise<Blob | null> => {
 };
 
 // Subir un archivo Excel
-export const uploadExcelFile = async (url: string, formData: FormData, token: any) => {
+export const uploadExcelFile = async (url: string, formData: FormData) => {
   try {
     const response: AxiosResponse<any> = await api.post(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}`,
       },
     });
 

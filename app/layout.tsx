@@ -4,7 +4,6 @@ import { Providers } from './providers'
 import '../styles/globals.css'
 import Breadcrumbs from '@/components/extra/Breadcrums'
 import Navbar from '@/components/Navbar'
-import { UserProvider, useUser } from '@auth0/nextjs-auth0/client';
 
 export default function RootLayout({
   children,
@@ -15,15 +14,13 @@ export default function RootLayout({
   
   return (
     <html lang='en' className={fonts.montserrat.variable}>
-      <UserProvider>
-        <body>
+        <body style={{ fontFamily: 'var(--font-montserrat)' }}>
           <Providers>
             <Navbar/>
             <Breadcrumbs />
             {children}
           </Providers>
         </body>
-      </UserProvider>
     </html>
   )
 }

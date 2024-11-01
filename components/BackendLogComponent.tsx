@@ -1,4 +1,3 @@
-import { baseURLAPI } from '@/app/services/apiService';
 import { Box, Text, VStack, Spinner } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
@@ -8,7 +7,7 @@ const BackendLogComponent = () => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socket = io(baseURLAPI);
+    const socket = io("http://localhost:3000");
 
     socket.on('connect', () => {
       setIsConnected(true);

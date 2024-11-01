@@ -26,7 +26,7 @@ const SendDebtsPage: React.FC = () => {
 
   useEffect(() => {
     // Solo se ejecuta en el cliente
-    const fileName = sessionStorage.getItem('textFileName');
+    const fileName = sessionStorage.getItem('textFileNameForSend');
     if (fileName) {
       setTextFile(fileName);
     }

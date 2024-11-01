@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Box, Button, Flex, Heading, Text, Image, useToast, Tabs, TabList, Tab, TabPanels, TabPanel, Stepper, Step, StepStatus, StepIndicator, StepTitle, StepDescription, StepSeparator, List, ListItem, Spinner } from '@chakra-ui/react';
 import ExcelTable from '../ExcelTable';
 import * as XLSX from 'xlsx';
-import { uploadExcelFile, checkLoginWsp, getFetchQRCode, getFileByName  } from '@/services/apiService';
+
 import { useRouter } from 'next/navigation';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
+import { uploadExcelFile, checkLoginWsp, getFetchQRCode, getFileByName } from '@/app/services/apiService';
 
 
 const FilterPage = () => {
@@ -81,20 +82,13 @@ const FilterPage = () => {
         }
       } catch (error) {
         console.error('Error:', error);
-        toast({
-          title: 'Error de autenticación.',
-          description: 'No se pudo verificar el estado de autenticación o obtener el QR. Inténtalo de nuevo.',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
       } finally {
         setIsLoadingQr(false);
       }
     };
   
     checkLoginStatusAndFetchQRCode();
-  }, []);
+  }, [excelData,isLoggedIn, qrCode ]);
   
 
   const handleLoginConfirmation = async () => {
@@ -205,7 +199,7 @@ const FilterPage = () => {
       );
   
       const dataArrays = await Promise.all(
-        fetchedData.map(async (blob) => {
+        fetchedData.map(async (blob: any) => {
           const arrayBuffer = await blob.arrayBuffer();
           const workbook = XLSX.read(arrayBuffer, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
@@ -280,7 +274,9 @@ const FilterPage = () => {
         });
         return;
       }
-      router.push(`/sendDebts-page?textFile=${encodeURIComponent(pa01PlanClients.fileName)}`);
+
+      sessionStorage.setItem('textFileNameForSend', pa01PlanClients.fileName);
+      router.push('/sendDebts-page');
     } else if (tableSelect === "2") {
       if (otherPlansClients.isSentOrUsed) {
         toast({
@@ -302,7 +298,9 @@ const FilterPage = () => {
         });
         return;
       }
-      router.push(`/sendDebts-page?textFile=${encodeURIComponent(otherPlansClients.fileName)}`);
+
+      sessionStorage.setItem('textFileNameForSend', otherPlansClients.fileName);
+      router.push('/sendDebts-page');
     }
   };
   
@@ -343,8 +341,8 @@ const FilterPage = () => {
           <List spacing={3} textAlign="left">
             <ListItem>1. Abre WhatsApp en tu celular.</ListItem>
             <ListItem>2. Toca el ícono de menú (los tres puntos verticales) en la esquina superior derecha.</ListItem>
-            <ListItem>3. Selecciona "Dispositivos vinculados".</ListItem>
-            <ListItem>4. Toca en "Vincular un dispositivo" y escanea el código QR que aparece aquí.</ListItem>
+            <ListItem>3. Selecciona &quot;Dispositivos vinculados&quot;.</ListItem>
+            <ListItem>4. Toca en &quot;Vincular un dispositivo&quot; y escanea el código QR que aparece aquí.</ListItem>
           </List>
         </Box>
 
