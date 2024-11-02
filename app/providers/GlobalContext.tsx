@@ -1,70 +1,57 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 // Define los tipos para los archivos y sus estados
 interface FileData {
-  data: any[][]; // El contenido del archivo
-  fileName: string; // El nombre del archivo
-  isSentOrUsed: boolean; // Estado que indica si el archivo fue enviado o usado
+  data: any[][];
+  fileName: string;
+  isSentOrUsed: boolean;
 }
 
 // Define los tipos para el estado y las funciones del contexto
 interface GlobalContextType {
-  // Archivos
+  accessToken: string | null;
+  refreshToken: string | null;
+
   excelFileByUser: FileData;
   noWhatsappClients: FileData;
   pa01PlanClients: FileData;
   otherPlansClients: FileData;
 
-  // Funciones para actualizar los archivos
   setExcelFileByUser: (data: FileData) => void;
   setNoWhatsappClients: (data: FileData) => void;
   setPa01PlanClients: (data: FileData) => void;
   setOtherPlansClients: (data: FileData) => void;
+
+  setAccessToken: (token: string) => void;
+  setRefreshToken: (token: string) => void;
 }
 
-// Crea el contexto con el tipo adecuado
+// Crea el contexto
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-// Define las props para el GlobalProvider
 interface GlobalProviderProps {
-  children: ReactNode; // Especificar que children es de tipo ReactNode
+  children: ReactNode;
 }
 
-// Crea el proveedor del contexto
 export const GlobalProvider = ({ children }: GlobalProviderProps) => {
+  const [excelFileByUser, setExcelFileByUser] = useState<FileData>({ data: [], fileName: '', isSentOrUsed: false });
+  const [noWhatsappClients, setNoWhatsappClients] = useState<FileData>({ data: [], fileName: '', isSentOrUsed: false });
+  const [pa01PlanClients, setPa01PlanClients] = useState<FileData>({ data: [], fileName: '', isSentOrUsed: false });
+  const [otherPlansClients, setOtherPlansClients] = useState<FileData>({ data: [], fileName: '', isSentOrUsed: false });
 
-  // Estados para los archivos
-  const [excelFileByUser, setExcelFileByUser] = useState<FileData>({
-    data: [],
-    fileName: '',
-    isSentOrUsed: false,
-  });
+  const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem('accessToken'));
+  const [refreshToken, setRefreshToken] = useState<string | null>(localStorage.getItem('refreshToken'));
 
-  const [noWhatsappClients, setNoWhatsappClients] = useState<FileData>({
-    data: [],
-    fileName: '',
-    isSentOrUsed: false,
-  });
-
-  const [pa01PlanClients, setPa01PlanClients] = useState<FileData>({
-    data: [],
-    fileName: '',
-    isSentOrUsed: false,
-  });
-
-  const [otherPlansClients, setOtherPlansClients] = useState<FileData>({
-    data: [],
-    fileName: '',
-    isSentOrUsed: false,
-  });
-
-  // Funciones de autenticación
-
+  useEffect(() => {
+    localStorage.setItem('accessToken', accessToken ?? '');
+    localStorage.setItem('refreshToken', refreshToken ?? '');
+  }, [accessToken, refreshToken]);
 
   return (
     <GlobalContext.Provider
       value={{
-        // Archivos y setters
+        accessToken,
+        refreshToken,
         excelFileByUser,
         setExcelFileByUser,
         noWhatsappClients,
@@ -73,6 +60,8 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
         setPa01PlanClients,
         otherPlansClients,
         setOtherPlansClients,
+        setAccessToken,
+        setRefreshToken,
       }}
     >
       {children}
@@ -80,7 +69,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   );
 };
 
-// Hook personalizado para usar el contexto con TypeScript
+// Hook personalizado
 export const useGlobalContext = (): GlobalContextType => {
   const context = useContext(GlobalContext);
   if (!context) {

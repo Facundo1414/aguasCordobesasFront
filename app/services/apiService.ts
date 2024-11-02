@@ -1,9 +1,19 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios';
+import { useGlobalContext } from '../providers/GlobalContext';
 
 const api: AxiosInstance = axios.create({
   baseURL: 'http://localhost:3000', //TODO Cambia esto a la URL de tu API
   timeout: 10000,
 });
+
+
+// api.interceptors.request.use(config => {
+//   const { accessToken } = useGlobalContext();
+//   if (accessToken) {
+//     config.headers['Authorization'] = `Bearer ${accessToken}`;
+//   }
+//   return config;
+// });
 
 
 

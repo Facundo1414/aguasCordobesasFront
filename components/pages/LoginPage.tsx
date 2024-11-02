@@ -2,19 +2,27 @@ import { useState } from 'react';
 import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, Stack, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { userLogin } from '@/app/services/apiService';
+import { useGlobalContext } from '@/app/providers/GlobalContext';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
   const router = useRouter();
+  const { setAccessToken, setRefreshToken } = useGlobalContext();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
     try {
       const loginResult = await userLogin(username, password);
-      
+
+      // Guardar los tokens en el contexto global
+      setAccessToken(loginResult.accessToken);
+      setRefreshToken(loginResult.refreshToken);
+
       toast({
         title: 'Inicio de sesión exitoso',
         status: 'success',
@@ -22,15 +30,17 @@ const LoginPage = () => {
         isClosable: true,
       });
 
-      // Redirige al usuario al dashboard o a la página de inicio
       router.push('/');
     } catch (error) {
+      console.error("Error de inicio de sesión:", error);
       toast({
         title: 'Nombre de usuario o contraseña incorrectos',
         status: 'error',
         duration: 3000,
         isClosable: true,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -39,12 +49,11 @@ const LoginPage = () => {
       minH="100vh"
       align="center"
       justify="center"
-      bgImg={"/bg_topEspacioClientes.jpg"}
+      bgImg="/bg_topEspacioClientes.jpg"
       bgSize="cover"
       bgPos="center"
       position="relative"
     >
-      {/* Superposición oscura para opacidad */}
       <Box position="absolute" top="0" left="0" right="0" bottom="0" bg="black" opacity="0.5" zIndex="1" />
 
       <Box zIndex="2" maxW="lg" w="full" p={8} bg="white" boxShadow="lg" rounded="lg">
@@ -60,6 +69,7 @@ const LoginPage = () => {
                 placeholder="Ingresa tu nombre de usuario"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                disabled={isSubmitting}
               />
             </FormControl>
             <FormControl id="password" isRequired>
@@ -69,9 +79,10 @@ const LoginPage = () => {
                 placeholder="Ingresa tu contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
               />
             </FormControl>
-            <Button type="submit" colorScheme="blue" width="full">
+            <Button type="submit" colorScheme="blue" width="full" isLoading={isSubmitting}>
               Iniciar Sesión
             </Button>
           </Stack>
