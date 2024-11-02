@@ -124,4 +124,22 @@ export const sendAndscrape = async (fileName: string): Promise<{ message: string
   }
 };
 
+export const userLogin = async (username: string, password: string) => {
+  try {
+    const response = await api.post('/auth/login', { username, password });
+    return response.data;
+  } catch (error) {
+    console.error('Error en login:', error);
+    throw new Error('Credenciales inválidas');
+  }
+};
+
+export const userLogout = async () => {
+  try {
+    await api.post('/auth/logout');
+  } catch (error) {
+    console.error('Error en logout:', error);
+  }
+};
+
 export default api;
