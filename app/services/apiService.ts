@@ -18,28 +18,47 @@ const api: AxiosInstance = axios.create({
 
 
 // Funciones para interactuar con la API
-export const get = async (url: string, params?: object) => {
-  return api.get(url);
+export const get = async (url: string, params?: object, token?: string) => {
+  const config: AxiosRequestConfig = {
+    params,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  };
+  return api.get(url, config);
 };
 
-export const post = async (url: string, data: object) => {
-  return api.post(url, data);
+export const post = async (url: string, data: object, token?: string) => {
+  const config: AxiosRequestConfig = {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  };
+  return api.post(url, data, config);
 };
 
-export const put = async (url: string, data: object) => {
-  return api.put(url, data);
+export const put = async (url: string, data: object, token?: string) => {
+  const config: AxiosRequestConfig = {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  };
+  return api.put(url, data, config);
 };
 
-export const del = async (url: string) => {
-  return api.delete(url);
+export const del = async (url: string, token?: string) => {
+  const config: AxiosRequestConfig = {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  };
+  return api.delete(url, config);
 };
 
-export const uploadData = async (url: string, data: FormData, config?: object) => {
+export const uploadData = async (url: string, data: FormData, token?: string) => {
+  const config: AxiosRequestConfig = {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  };
   return api.post(url, data, config);
 };
 
 // Verificar el estado de autenticación en WhatsApp
-export const checkLoginWsp = async () => {
+export const checkLoginWsp = async ( token?: string) => {
   try {
     const response: AxiosResponse<any> = await api.get('/api/isLoggedIn');
     return response.data;
@@ -51,10 +70,12 @@ export const checkLoginWsp = async () => {
 
 
 // Obtener el código QR desde el servidor
-export const getFetchQRCode = async (): Promise<Blob | null> => {
+export const getFetchQRCode = async ( token?: string ): Promise<Blob | null> => {
   try { 
     const config = {
-      responseType: 'blob' as const, // Asegura que la respuesta sea tratada como un blob
+      'Content-Type': 'multipart/form-data',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      responseType: 'blob' as const, 
     };
 
     const response: AxiosResponse<Blob> = await api.get('/api/qrcode', config);
@@ -66,11 +87,12 @@ export const getFetchQRCode = async (): Promise<Blob | null> => {
 };
 
 // Subir un archivo Excel
-export const uploadExcelFile = async (url: string, formData: FormData) => {
+export const uploadExcelFile = async (url: string, formData: FormData, token: string) => {
   try {
     const response: AxiosResponse<any> = await api.post(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
 

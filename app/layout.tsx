@@ -22,7 +22,7 @@ export default function RootLayout({
       <body style={{ fontFamily: 'var(--font-montserrat)' }}>
         <Providers>
           {!isLoginPage && <Navbar />}
-          {!isLoginPage && <Breadcrumbs />}
+          {/* {!isLoginPage && <Breadcrumbs />} */}
           {children}
         </Providers>
       </body>

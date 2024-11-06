@@ -1,40 +1,55 @@
+import { ExcelRow } from '@/components/extra/typesSendFilterProcessPage';
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-interface ExcelRow {
-  unidad: string | null;
-  tel_uni: string | null;
-  tel_clien: string | null;
-  tipo_plan: string | null;
-  plan_num: string | null;
-  cod_mot_gen: string | null;
-  criterios: string | null;
-  contrato: string | null;
-  entrega: string | null;
-  situ_actual: string | null;
-  situ_uni: string | null;
-  cant_venci: string | null;
-  cant_cuot: string | null;
-  cliente_01: string | null;
-  ejecutivoCta: string | null;
-}
 
-// Define el contexto
 interface GlobalContextType {
   excelFileByUser: { data: ExcelRow[]; fileName: string; isSentOrUsed: boolean } | null;
   setExcelFileByUser: (file: { data: ExcelRow[]; fileName: string; isSentOrUsed: boolean }) => void;
+  accessToken: string | null;
+  setAccessToken: (token: string) => void;
+  refreshToken: string | null;
+  setRefreshToken: (token: string) => void;
+  getToken: () => string | null;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   const [excelFileByUser, setExcelFileByUserState] = useState<{ data: ExcelRow[]; fileName: string; isSentOrUsed: boolean } | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+
 
   const setExcelFileByUser = (file: { data: ExcelRow[]; fileName: string; isSentOrUsed: boolean }) => {
     setExcelFileByUserState(file);
   };
 
+    // Función para obtener el token del localStorage
+    const getToken = (): string | null => {
+      return localStorage.getItem('accessToken');
+    };
+  
+    // Uso de useEffect para sincronizar el token con el localStorage
+    useEffect(() => {
+      const token = getToken();
+      if (token) {
+        setAccessToken(token);
+      }
+    }, []);
+
+
   return (
-    <GlobalContext.Provider value={{ excelFileByUser, setExcelFileByUser }}>
+    <GlobalContext.Provider
+      value={{
+        excelFileByUser,
+        setExcelFileByUser,
+        accessToken,
+        setAccessToken,
+        refreshToken,
+        setRefreshToken,
+        getToken
+      }}
+    >
       {children}
     </GlobalContext.Provider>
   );
