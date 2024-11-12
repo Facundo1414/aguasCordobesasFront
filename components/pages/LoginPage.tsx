@@ -1,27 +1,35 @@
 import { useState } from 'react';
 import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, Stack, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { userLogin } from '@/app/services/apiService';
+import { userLogin, getFetchQRCode, getIsLoggedIn } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
+import QrCodeDisplay from '../filterPageComponents/QRCodeDisplay';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [isLoadingQr, setIsLoadingQr] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const toast = useToast();
   const router = useRouter();
   const { setAccessToken, setRefreshToken } = useGlobalContext();
+  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const loginResult = await userLogin(username, password);
 
-      // Guardar los tokens en el contexto global
       setAccessToken(loginResult.accessToken);
       setRefreshToken(loginResult.refreshToken);
+
+      localStorage.setItem('accessToken', loginResult.accessToken);
+      localStorage.setItem('refreshToken', loginResult.refreshToken);
 
       toast({
         title: 'Inicio de sesión exitoso',
@@ -30,7 +38,9 @@ const LoginPage = () => {
         isClosable: true,
       });
 
-      router.push('/');
+      router.push("/")
+
+
     } catch (error) {
       console.error("Error de inicio de sesión:", error);
       toast({
@@ -43,6 +53,8 @@ const LoginPage = () => {
       setIsSubmitting(false);
     }
   };
+
+
 
   return (
     <Flex

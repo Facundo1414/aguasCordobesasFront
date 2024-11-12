@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Flex, Heading, Text, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import BackendLogComponent from '../BackendLogComponent';
+import BackendLogComponent from '../filterPageComponents/BackendLogComponent';
 import Loader from '../extra/Loader';
 import { sendAndscrape } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';

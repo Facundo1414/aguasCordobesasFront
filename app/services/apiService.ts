@@ -3,7 +3,7 @@ import { useGlobalContext } from '../providers/GlobalContext';
 
 const api: AxiosInstance = axios.create({
   baseURL: 'http://localhost:3000', //TODO Cambia esto a la URL de tu API
-  timeout: 10000,
+  timeout: 30000,
 });
 
 
@@ -58,9 +58,9 @@ export const uploadData = async (url: string, data: FormData, token?: string) =>
 };
 
 // Verificar el estado de autenticación en WhatsApp
-export const checkLoginWsp = async ( token?: string) => {
+export const getIsLoggedIn = async ( token?: string) => {
   try {
-    const response: AxiosResponse<any> = await api.get('/api/isLoggedIn');
+    const response: AxiosResponse<any> = await api.get('/api/whatsapp/isLoggedIn');
     return response.data;
   } catch (error) {
     console.error('Error al verificar el estado de autenticación:', error);
@@ -70,21 +70,23 @@ export const checkLoginWsp = async ( token?: string) => {
 
 
 // Obtener el código QR desde el servidor
-export const getFetchQRCode = async ( token?: string ): Promise<Blob | null> => {
-  try { 
-    const config = {
-      'Content-Type': 'multipart/form-data',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      responseType: 'blob' as const, 
+export const getFetchQRCode = async (token?: string): Promise<string | null> => {
+  try {
+    const config: AxiosRequestConfig = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
     };
 
-    const response: AxiosResponse<Blob> = await api.get('/api/qrcode', config);
-    return response.data;
+    const response: AxiosResponse<{ qrCode: string }> = await api.get('/api/whatsapp/qrcode', config);
+    return response.data.qrCode || null;
   } catch (error) {
     console.error('Error al obtener el QR code:', error);
     return null;
   }
 };
+
 
 // Subir un archivo Excel
 export const uploadExcelFile = async (url: string, formData: FormData, token: string) => {
