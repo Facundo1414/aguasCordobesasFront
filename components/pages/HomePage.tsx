@@ -3,8 +3,12 @@ import { Box, Grid, GridItem, Heading, Text, Image, Flex } from '@chakra-ui/reac
 import {  ChevronRightIcon, EmailIcon,  PlusSquareIcon, QuestionIcon } from '@chakra-ui/icons';
 import Servicio2Modal from '../homeComponents/Servicio2Modal';
 import ModalEnDesarrollo from '../homeComponents/ModalEnDesarrollo';
+import { useRouter } from 'next/navigation';
+import { getIsLoggedIn } from '@/app/services/apiService';
+import { useGlobalContext } from '@/app/providers/GlobalContext';
 
 export default function HomePage() {
+  const router = useRouter();
   const [isServicio2ModalOpen, setIsServicio2ModalOpen] = useState(false);
   const [isEnDesarrolloModalOpen, setIsEnDesarrolloModalOpen] = useState(false);
 
@@ -14,8 +18,25 @@ export default function HomePage() {
   const handleOpenEnDesarrolloModal = () => setIsEnDesarrolloModalOpen(true);
   const handleCloseEnDesarrolloModal = () => setIsEnDesarrolloModalOpen(false);
 
+  const {accessToken} = useGlobalContext()
+  const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
+
+  const handleClick = async () => {
+    try {
+      const response = await getIsLoggedIn(getToken());
+      if (response.isLoggedIn) {
+        router.push('/upload-page');
+      } else {
+        handleOpenServicio2Modal();
+      }
+    } catch (error) {
+      console.error("Error al verificar el estado de inicio de sesión:", error);
+    }
+  };
+
+
   return (
-    <Box py={8} px={[4, 8, 20]} bg="gray.100">
+    <Box py={8} px={[4, 8, 20]}>
       <Grid templateColumns="repeat(12, 1fr)" gap={4}>
         {/* Encabezado con logo y texto */}
         <GridItem colSpan={12}>
@@ -59,10 +80,20 @@ export default function HomePage() {
           <Grid templateColumns="repeat(3, 1fr)" gap={4} mt={8}>
             {/* Primera fila: 3 Cards */}
             <GridItem colSpan={1}>
-              <Box p={4} bg="teal.400" borderRadius="md" display="flex" w={"100%"} h={"6rem"} alignItems="center" as="button">
+              <Box
+                p={4}
+                bg="teal.400"
+                borderRadius="md"
+                display="flex"
+                w="100%"
+                h="6rem"
+                alignItems="center"
+                as="button"
+                onClick={handleClick}
+              >
                 <EmailIcon w={8} h={8} color="white" />
                 <Text ml={4} fontSize="lg" color="white">
-                  Enviar deudas a clientes
+                  Enviar Deudas a Clientes
                 </Text>
               </Box>
             </GridItem>
@@ -137,7 +168,7 @@ export default function HomePage() {
               >
                 <ChevronRightIcon w={8} h={8} color="white" />
                 <Text ml={4} fontSize="lg" color="white">
-                  Servicio 5
+                  Archivos Guardados
                 </Text>
               </Box>
             </GridItem>

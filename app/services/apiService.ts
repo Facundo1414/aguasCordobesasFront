@@ -58,9 +58,14 @@ export const uploadData = async (url: string, data: FormData, token?: string) =>
 };
 
 // Verificar el estado de autenticación en WhatsApp
-export const getIsLoggedIn = async ( token?: string) => {
+export const getIsLoggedIn = async (token?: string) => {
   try {
-    const response: AxiosResponse<any> = await api.get('/api/whatsapp/isLoggedIn');
+    const config: AxiosRequestConfig = {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    };
+    const response: AxiosResponse<any> = await api.get('/api/whatsapp/isLoggedIn', config);
     return response.data;
   } catch (error) {
     console.error('Error al verificar el estado de autenticación:', error);
