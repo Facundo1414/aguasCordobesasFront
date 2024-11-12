@@ -1,9 +1,19 @@
-import React from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
 import { Box, Grid, GridItem, Heading, Text, Image, Flex } from '@chakra-ui/react';
-import { InfoIcon, PhoneIcon, SettingsIcon, StarIcon, TimeIcon } from '@chakra-ui/icons';
+import {  ChevronRightIcon, EmailIcon,  PlusSquareIcon, QuestionIcon } from '@chakra-ui/icons';
+import Servicio2Modal from '../homeComponents/Servicio2Modal';
+import ModalEnDesarrollo from '../homeComponents/ModalEnDesarrollo';
 
 export default function HomePage() {
+  const [isServicio2ModalOpen, setIsServicio2ModalOpen] = useState(false);
+  const [isEnDesarrolloModalOpen, setIsEnDesarrolloModalOpen] = useState(false);
+
+  const handleOpenServicio2Modal = () => setIsServicio2ModalOpen(true);
+  const handleCloseServicio2Modal = () => setIsServicio2ModalOpen(false);
+
+  const handleOpenEnDesarrolloModal = () => setIsEnDesarrolloModalOpen(true);
+  const handleCloseEnDesarrolloModal = () => setIsEnDesarrolloModalOpen(false);
+
   return (
     <Box py={8} px={[4, 8, 20]} bg="gray.100">
       <Grid templateColumns="repeat(12, 1fr)" gap={4}>
@@ -49,59 +59,94 @@ export default function HomePage() {
           <Grid templateColumns="repeat(3, 1fr)" gap={4} mt={8}>
             {/* Primera fila: 3 Cards */}
             <GridItem colSpan={1}>
-              <Link href="/upload-page" passHref>
-                <Box p={4} bg="teal.400" borderRadius="md" display="flex" w={"100%"} h={"6rem"} alignItems="center" as="button">
-                  <InfoIcon w={8} h={8} color="white" />
-                  <Text ml={4} fontSize="lg" color="white">
-                    Enviar deudas a clientes por Whats App
-                  </Text>
-                </Box>
-              </Link>
+              <Box p={4} bg="teal.400" borderRadius="md" display="flex" w={"100%"} h={"6rem"} alignItems="center" as="button">
+                <EmailIcon w={8} h={8} color="white" />
+                <Text ml={4} fontSize="lg" color="white">
+                  Enviar deudas a clientes
+                </Text>
+              </Box>
             </GridItem>
             <GridItem colSpan={1}>
-              <Link href="/servicio2">
-                <Box p={4} bg="purple.400" borderRadius="md" display="flex" w={"100%"} h={"6rem"} alignItems="center" as="button">
-                  <SettingsIcon w={8} h={8} color="white" />
-                  <Text ml={4} fontSize="lg" color="white">
-                  </Text>
-                </Box>
-              </Link>
+              <Box
+                p={4}
+                bg="orange.400"
+                borderRadius="md"
+                display="flex"
+                w="100%"
+                h="6rem"
+                alignItems="center"
+                onClick={handleOpenServicio2Modal}
+                as="button"
+              >
+                <ChevronRightIcon w={8} h={8} color="white" />
+                <Text ml={4} fontSize="lg" color="white">
+                  Iniciar Sesion en Whatsapp
+                </Text>
+              </Box>
+              <Servicio2Modal isOpen={isServicio2ModalOpen} onClose={handleCloseServicio2Modal} />
             </GridItem>
             <GridItem colSpan={1}>
-              <Link href="/servicio3">
-                <Box p={4} bg="orange.400" borderRadius="md" display="flex" w={"100%"} h={"6rem"} alignItems="center" as="button">
-                  <TimeIcon w={8} h={8} color="white" />
-                  <Text ml={4} fontSize="lg" color="white">
-                    Servicio 3
-                  </Text>
-                </Box>
-              </Link>
+              <Box
+                p={4}
+                bg="orange.400"
+                borderRadius="md"
+                display="flex"
+                w={"100%"}
+                h={"6rem"}
+                alignItems="center"
+                onClick={handleOpenEnDesarrolloModal}
+                as="button"
+              >
+                <PlusSquareIcon w={8} h={8} color="white" />
+                <Text ml={4} fontSize="lg" color="white">
+                  Guardar Clientes
+                </Text>
+              </Box>
             </GridItem>
 
             {/* Segunda fila: 2 Cards */}
             <GridItem colSpan={1}>
-              <Link href="/servicio4">
-                <Box p={4} bg="green.400" borderRadius="md" display="flex" w={"100%"} h={"6rem"} alignItems="center" as="button">
-                  <PhoneIcon w={8} h={8} color="white" />
-                  <Text ml={4} fontSize="lg" color="white">
-                    Servicio 4
-                  </Text>
-                </Box>
-              </Link>
+              <Box
+                p={4}
+                bg="green.400"
+                borderRadius="md"
+                display="flex"
+                w={"100%"}
+                h={"6rem"}
+                alignItems="center"
+                onClick={handleOpenEnDesarrolloModal}
+                as="button"
+              >
+                <QuestionIcon w={8} h={8} color="white" />
+                <Text ml={4} fontSize="lg" color="white">
+                  Informacion
+                </Text>
+              </Box>
             </GridItem>
             <GridItem colSpan={2}>
-              <Link href="/servicio5">
-                <Box p={4} bg="blue.400" borderRadius="md" display="flex" w={"100%"}h={"6rem"} alignItems="center" as="button">
-                  <StarIcon w={8} h={8} color="white" />
-                  <Text ml={4} fontSize="lg" color="white">
-                    Servicio 5
-                  </Text>
-                </Box>
-              </Link>
+              <Box
+                p={4}
+                bg="blue.400"
+                borderRadius="md"
+                display="flex"
+                w={"100%"}
+                h={"6rem"}
+                alignItems="center"
+                onClick={handleOpenEnDesarrolloModal}
+                as="button"
+              >
+                <ChevronRightIcon w={8} h={8} color="white" />
+                <Text ml={4} fontSize="lg" color="white">
+                  Servicio 5
+                </Text>
+              </Box>
             </GridItem>
           </Grid>
         </GridItem>
       </Grid>
+
+      {/* Modal en Desarrollo */}
+      <ModalEnDesarrollo isOpen={isEnDesarrolloModalOpen} onClose={handleCloseEnDesarrolloModal} />
     </Box>
   );
 }
