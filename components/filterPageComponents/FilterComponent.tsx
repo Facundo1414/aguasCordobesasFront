@@ -2,9 +2,10 @@ import React from 'react';
 import { Box, Button, Text, useToast, Flex } from '@chakra-ui/react';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import {  uploadExcelFile } from '@/app/services/apiService';
+import * as XLSX from 'xlsx';
 
 interface FilterComponentProps {
-  onFilter: (fileWithoutWhatsApp: string, fileWithWhatsApp: string) => void;
+  onFilter: (fileWithWhatsApp: string, fileWithoutWhatsApp: string) => void; 
 }
 
 const FilterComponent: React.FC<FilterComponentProps> = ({ onFilter }) => {
@@ -17,8 +18,19 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilter }) => {
   const createFormData = () => {
     const formData = new FormData();
     if (excelFileByUser) {
-      const blob = new Blob([JSON.stringify(excelFileByUser.data)], { type: 'application/json' });
-      formData.append('file', blob, excelFileByUser.fileName);
+      // Generar un archivo Excel a partir de los datos JSON
+      const worksheet = XLSX.utils.json_to_sheet(excelFileByUser.data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  
+      // Convertir el workbook a un Blob en formato Excel
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const excelBlob = new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+  
+      // Agregar el Blob de Excel a FormData
+      formData.append('file', excelBlob, excelFileByUser.fileName || 'filteredData.xlsx');
     }
     return formData;
   };
@@ -30,7 +42,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilter }) => {
       const formData = createFormData();
       const response = await uploadExcelFile('/upload/excel', formData, getToken());
 
-      if (response.fileWithWhatsApp && response.fileWithoutWhatsApp) {
+      if (response.savedFileNames) {
         toast({
           title: 'Archivo procesado con éxito',
           description: 'Los archivos resultantes están listos para descargar.',
@@ -38,7 +50,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilter }) => {
           duration: 5000,
           isClosable: true,
         });
-        onFilter(response.fileWithoutWhatsApp, response.fileWithWhatsApp);
+        onFilter(response.savedFileNames[0], response.savedFileNames[1]);
       }
     } catch (error) {
       console.error('Error al procesar el archivo:', error);

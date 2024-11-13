@@ -38,7 +38,7 @@ export default function UploadPage() {
   const [fileWithoutWhatsApp, setFileWithoutWhatsApp] = useState<string | null>(null);
   const [fileWithWhatsApp, setFileWithWhatsApp] = useState<string | null>(null);
 
-
+  // para la tabla
   const handleFileChange = (file: File | Blob) => {
     const isFile = file instanceof File;
     setFile(isFile ? file : null); // Set file only if it’s an actual File instance
@@ -86,8 +86,15 @@ export default function UploadPage() {
     };
     reader.readAsArrayBuffer(file);
   };
-  
 
+  // para filterComponent
+  const handleFilterResults = (fileWithoutWhatsApp: string, fileWithWhatsApp: string ) => {
+    setFileWithoutWhatsApp(fileWithoutWhatsApp);
+    setFileWithWhatsApp(fileWithWhatsApp);
+    setActiveStep(2);
+  };
+  
+  // para upload
   const handleFilterClick = () => {
     if (excelData) {
       setActiveStep(1);
@@ -113,11 +120,6 @@ export default function UploadPage() {
     }
   };
 
-  const handleFilterResults = (results: { fileWithoutWhatsApp: string, fileWithWhatsApp: string }) => {
-    setFileWithoutWhatsApp(results.fileWithoutWhatsApp);
-    setFileWithWhatsApp(results.fileWithWhatsApp);
-    setActiveStep(2);
-  };
 
   const dataToShow = excelData && excelData.length > 1 ? excelData.slice(1) : Array(10).fill(emptyRow);
 
@@ -153,7 +155,7 @@ export default function UploadPage() {
 
       <Box w="40%" mx="auto" my="4rem">
         {activeStep === 1 ? (
-          <FilterComponent onFilter={handleFilterClick} />
+          <FilterComponent onFilter={handleFilterResults} />
         ) : activeStep === 2 ? (
           <ProcessComponent 
             onProcess={() => {}}
