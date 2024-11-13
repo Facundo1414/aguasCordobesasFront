@@ -73,24 +73,23 @@ export const getIsLoggedIn = async (token?: string) => {
   }
 };
 
-
-// Obtener el código QR desde el servidor
-export const getFetchQRCode = async (token?: string): Promise<string | null> => {
+// iniciar sesión en WhatsApp
+export const initializeWhatsAppSession = async (token?: string): Promise<{ clientId?: string; qrCode?: string, message?: string }> => {
   try {
     const config: AxiosRequestConfig = {
       headers: {
-        'Content-Type': 'multipart/form-data',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     };
-
-    const response: AxiosResponse<{ qrCode: string }> = await api.get('/api/whatsapp/qrcode', config);
-    return response.data.qrCode || null;
+    const response = await api.get('/api/whatsapp/initialize', config);
+    return response.data; // Devuelve el objeto con "clientId" y "qrCode" si están presentes
   } catch (error) {
-    console.error('Error al obtener el QR code:', error);
-    return null;
+    console.error('Error al verificar el estado de autenticación:', error);
+    throw error;
   }
 };
+
+
 
 
 // Subir un archivo Excel
@@ -115,9 +114,8 @@ export const uploadExcelFile = async (url: string, formData: FormData, token: st
 };
 
 // Obtener un archivo por su nombre
-export const getFileByName = async (fileName: string): Promise<Blob> => {
+export const getFileByName = async (fileName: string, token: string): Promise<Blob> => {
   try {
-    const token = "";
     const response = await fetch(`http://localhost:3000/api/getFileByName/${fileName}`, {
       method: 'GET',
       headers: {

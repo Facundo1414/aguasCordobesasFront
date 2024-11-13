@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useToast, Flex } from '@chakra-ui/react';
-import { getFetchQRCode } from '@/app/services/apiService';
+import { initializeWhatsAppSession } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import QrCodeDisplay from '../filterPageComponents/QRCodeDisplay';
 
@@ -9,32 +9,52 @@ interface Servicio2ModalProps {
   onClose: () => void;
 }
 
+const MAX_QR_ATTEMPTS = 5; // Máximo número de intentos para obtener el código QR
+
 const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
   const { accessToken } = useGlobalContext();
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [isLoadingQr, setIsLoadingQr] = useState(true);
+  const [isSessionReady, setIsSessionReady] = useState(false);
   const toast = useToast();
   let qrTimer: NodeJS.Timeout | null = null;
 
   const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
 
-  const checkLoginStatusAndFetchQRCode = async () => {
+  const initializeWsp = async () => {
     try {
-      const token = getToken();
-      const qrBase64 = await getFetchQRCode(token);
-      if (qrBase64) {
-        setQrCode(qrBase64);
-        qrTimer = setTimeout(checkLoginStatusAndFetchQRCode, 60000);
+      const response = await initializeWhatsAppSession(getToken());
+      if (response?.message == "ok") {
+        setIsSessionReady(true); 
+        setQrCode(null);
+        setIsLoadingQr(false);
+        toast({
+          title: 'Sesión en WhatsApp iniciada con exito.',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+
+      } else if (response?.qrCode) {
+        setQrCode(response.qrCode);
+        setIsLoadingQr(false);
       }
     } catch (error) {
-      console.error('Error obteniendo código QR:', error);
-    } finally {
-      setIsLoadingQr(false);
+      console.error('Error en la inicialización de WhatsApp:', error);
+      toast({
+        title: 'Error al iniciar sesión en WhatsApp',
+        description: 'Intente nuevamente más tarde.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
   useEffect(() => {
-    if (isOpen) checkLoginStatusAndFetchQRCode();
+    if (isOpen) {
+      initializeWsp(); 
+    }
     return () => {
       if (qrTimer) clearTimeout(qrTimer);
     };
@@ -55,6 +75,7 @@ const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
               duration: 3000,
               isClosable: true,
             });
+            setIsSessionReady(true);
             onClose();
           }}
         />

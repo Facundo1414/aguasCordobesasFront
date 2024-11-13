@@ -48,22 +48,10 @@ export default function Navbar() {
               Inicio
             </Button>
           </Link>
-          <Link href="/upload-page" passHref>
-            <Button
-              variant="ghost"
-              leftIcon={<UploadIcon />}
-              _hover={{ bg: 'green.300' }}
-              color="whiteAlpha.900"
-              fontSize="lg"
-            >
-              Subir archivos
-            </Button>
-          </Link>
         </Stack>
 
         <Flex w={"10%"} justifyContent={"center"} alignItems={"center"}>
           <Avatar
-            src={'/default-avatar.png'}
             bg="blue.300"
             color="blue.600"
             cursor="pointer"

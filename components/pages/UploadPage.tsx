@@ -29,7 +29,6 @@ export default function UploadPage() {
   const [excelData, setExcelData] = useState<ExcelRow[] | null>(null);
   const toast = useToast();
   const { setExcelFileByUser } = useGlobalContext();
-  
   const { activeStep, setActiveStep } = useSteps({
     index: 0,
     count: steps.length,
@@ -37,11 +36,13 @@ export default function UploadPage() {
 
   // Campos para ProcessComponent
   const [fileWithoutWhatsApp, setFileWithoutWhatsApp] = useState<string | null>(null);
-  const [fileWithWhatsApp, setfileWithWhatsApp] = useState<string | null>(null);
+  const [fileWithWhatsApp, setFileWithWhatsApp] = useState<string | null>(null);
 
 
-  const handleFileChange = (file: File) => {
-    setFile(file);
+  const handleFileChange = (file: File | Blob) => {
+    const isFile = file instanceof File;
+    setFile(isFile ? file : null); // Set file only if it’s an actual File instance
+  
     const reader = new FileReader();
     reader.onload = (e) => {
       const data = new Uint8Array(e.target?.result as ArrayBuffer);
@@ -66,8 +67,15 @@ export default function UploadPage() {
           cliente_01: row[13] as string || null,
           ejecutivoCta: row[14] as string || null,
         }));
-
+  
       setExcelData(json);
+  
+      setExcelFileByUser({
+        data: json,
+        fileName: isFile ? file.name : "Filtered Data",
+        isSentOrUsed: false,
+      });
+  
       toast({
         title: 'Archivo procesado con éxito.',
         description: 'Los datos han sido cargados.',
@@ -78,6 +86,7 @@ export default function UploadPage() {
     };
     reader.readAsArrayBuffer(file);
   };
+  
 
   const handleFilterClick = () => {
     if (excelData) {
@@ -106,7 +115,7 @@ export default function UploadPage() {
 
   const handleFilterResults = (results: { fileWithoutWhatsApp: string, fileWithWhatsApp: string }) => {
     setFileWithoutWhatsApp(results.fileWithoutWhatsApp);
-    setfileWithWhatsApp(results.fileWithWhatsApp);
+    setFileWithWhatsApp(results.fileWithWhatsApp);
     setActiveStep(2);
   };
 
@@ -147,9 +156,11 @@ export default function UploadPage() {
           <FilterComponent onFilter={handleFilterClick} />
         ) : activeStep === 2 ? (
           <ProcessComponent 
-          onProcess={() => { /* Logic to handle processing */ }} 
-          fileWithoutWhatsApp={fileWithoutWhatsApp} 
-          fileWithWhatsApp={fileWithWhatsApp} 
+            onProcess={() => {}}
+            fileWithoutWhatsApp={fileWithoutWhatsApp}
+            fileWithWhatsApp={fileWithWhatsApp}
+            onExcelDataUpdate={setExcelData}
+            handleFileChange={handleFileChange}
           />
         ) : (
           <FileUploadForm 
