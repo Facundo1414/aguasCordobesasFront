@@ -1,9 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios';
-import { useGlobalContext } from '../providers/GlobalContext';
 
 const api: AxiosInstance = axios.create({
   baseURL: 'http://localhost:3000', //TODO Cambia esto a la URL de tu API
-  timeout: 30000,
+  //timeout: 30000,
 });
 
 
@@ -136,9 +135,29 @@ export const getFileByName = async (fileName: string, token: string): Promise<Bl
 };
 
 // Enviar y hacer scraping de un archivo
-export const sendAndscrape = async (fileName: string): Promise<{ message: string, file?: Blob }> => {
+export const sendAndScrape = async (
+  fileName: string,
+  token: string
+): Promise<{ message: string; file?: Blob }> => {
   try {
-    const response: AxiosResponse = await api.post(`/process/process-file/${fileName}`, {}, { responseType: 'blob' });
+    // Configuración del request con el Bearer token
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      responseType: 'blob'
+    };
+
+    // Realizar la solicitud de envío y scraping
+    const response: AxiosResponse = await api.post(
+      `/process/process-file`,
+      {
+        filename: fileName,
+        message: '',
+        expiration: 1
+      },
+      config
+    );
 
     const contentType = response.headers['content-type'];
     let message = 'Proceso completado con éxito.';
@@ -160,6 +179,8 @@ export const sendAndscrape = async (fileName: string): Promise<{ message: string
     throw new Error(error.message || 'Error al iniciar el proceso');
   }
 };
+
+
 
 export const userLogin = async (username: string, password: string) => {
   try {

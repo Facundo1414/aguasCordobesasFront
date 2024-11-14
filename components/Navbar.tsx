@@ -26,7 +26,7 @@ export default function Navbar() {
   };
 
   return (
-    <Box bg="blue.600" color="white" p={2} h={16}>
+    <Box bg="teal.600" color="white" p={2} h={16}>
       <Flex align="center" w={"100%"}>
         <Flex w={"10%"} justifyContent={"center"} alignItems={"center"}>
           <Link href="/" passHref>

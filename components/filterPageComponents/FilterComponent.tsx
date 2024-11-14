@@ -74,14 +74,28 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilter }) => {
       border="1px" 
       borderColor="gray.300" 
       borderRadius="md" 
-      flexDirection="column" 
-      justifyContent="center" 
-      alignItems="center"
+      direction="column" 
+      justify="center" 
+      align="center"
+      width={"40%"}
     >
-      <Button onClick={handleFileUpload} colorScheme="blue">
-        Filtrar archivo
+      <Text 
+        fontSize="lg" 
+        fontWeight="bold" 
+        textAlign="center" 
+        mb={4}
+      >
+        Si los datos mostrados en la tabla coinciden con el archivo que subiste,
+        haz clic en "Filtrar Archivo" para obtener aquellos clientes con WhatsApp.
+      </Text>
+      <Button 
+        onClick={handleFileUpload} 
+        colorScheme="green"
+      >
+        Filtrar Archivo
       </Button>
     </Flex>
+
 
   );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { Box, Button, Flex, Text, useToast } from '@chakra-ui/react';
-import * as XLSX from 'xlsx';
+import { Button, Flex, Text, useToast } from '@chakra-ui/react';
+import { DownloadIcon } from '@chakra-ui/icons';
 import { getFileByName } from '@/app/services/apiService';
 import { ExcelRow } from '../extra/typesSendFilterProcessPage';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
@@ -21,28 +21,15 @@ const ProcessComponent: React.FC<ProcessComponentProps> = ({
   handleFileChange
 }) => {
   const toast = useToast();
-
-  const { accessToken, excelFileByUser } = useGlobalContext();
+  const { accessToken } = useGlobalContext();
   const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
-
-
 
   useEffect(() => {
     const fetchFilteredData = async () => {
       if (fileWithWhatsApp) {
         try {
           const fileBlob = await getFileByName(fileWithWhatsApp || "", getToken());
-          
-          // Call handleFileChange with the blob to update the table data
           handleFileChange(fileBlob);
-  
-          toast({
-            title: 'Datos actualizados',
-            description: 'Los datos filtrados han sido cargados en la tabla.',
-            status: 'success',
-            duration: 5000,
-            isClosable: true,
-          });
         } catch (error) {
           console.error('Error al descargar o procesar el archivo:', error);
           toast({
@@ -55,51 +42,96 @@ const ProcessComponent: React.FC<ProcessComponentProps> = ({
         }
       }
     };
-  
+
     fetchFilteredData();
   }, [fileWithWhatsApp]);
-  
 
-    // Handler to download the filtered file
-    const handleDownload = async () => {
-      if (fileWithWhatsApp) {
-        try {
-          const fileBlob = await getFileByName(fileWithWhatsApp, getToken());
-          const url = window.URL.createObjectURL(fileBlob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = fileWithWhatsApp; // Nombre del archivo para la descarga
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-        } catch (error) {
-          console.error('Error al descargar el archivo:', error);
-          toast({
-            title: 'Error',
-            description: 'Hubo un problema al intentar descargar el archivo.',
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-          });
-        }
+  // Handler to download the specified file (either with or without WhatsApp)
+  const handleDownload = async (fileName: string | null) => {
+    if (fileName) {
+      try {
+        const fileBlob = await getFileByName(fileName, getToken());
+        const url = window.URL.createObjectURL(fileBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName; // Nombre del archivo para la descarga
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } catch (error) {
+        console.error('Error al descargar el archivo:', error);
+        toast({
+          title: 'Error',
+          description: 'Hubo un problema al intentar descargar el archivo.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
       }
-    };
+    }
+  };
 
   return (
-    <Box p={4} borderWidth="1px" borderRadius="lg" shadow="md" textAlign="center">
-      <Text fontSize="lg" fontWeight="bold" mb={4}>
-        Procesar archivo filtrado
-      </Text>
-      <Text mb={4}>Este archivo contiene los clientes filtrados y está listo para ser procesado.</Text>
-      <Flex justifyContent="center" gap={4}>
-        <Button colorScheme="blue" onClick={onProcess}>
-          Iniciar Proceso
-        </Button>
-        <Button colorScheme="green" onClick={handleDownload} isDisabled={!fileWithWhatsApp}>
-          Descargar Archivo
-        </Button>
-      </Flex>
-    </Box>
+    <Flex 
+      p={6} 
+      borderWidth="1px" 
+      borderRadius="lg" 
+      shadow="md"
+      justifyContent={"center"}
+      alignItems={"center"}
+      width={"80%"} 
+    >
+        <Flex direction="column" gap={4} width={"50%"}>
+          {/* Descargar clientes con WhatsApp */}
+          <Flex direction="row" alignItems={"center"} justifyContent={"center"} gap={4}>
+            <Text fontSize="lg" fontWeight="bold">
+              Descargar Excel de clientes con WhatsApp
+            </Text>
+            <Button 
+              variant="outline"
+              colorScheme="blue" 
+              onClick={() => handleDownload(fileWithWhatsApp)} 
+              isDisabled={!fileWithWhatsApp}
+            >
+              <DownloadIcon />
+            </Button>
+          </Flex>
+          
+          
+          {/* Descargar clientes sin WhatsApp */}
+          <Flex direction="row" alignItems={"center"} justifyContent={"center"} gap={4}>
+            <Text fontSize="lg" fontWeight="bold">
+              Descargar Excel de clientes sin WhatsApp
+            </Text>
+            <Button
+              variant="outline" 
+              colorScheme="orange" 
+              onClick={() => handleDownload(fileWithoutWhatsApp)} 
+              isDisabled={!fileWithoutWhatsApp}
+            >
+              <DownloadIcon />
+            </Button>
+          </Flex>
+        </Flex>
+      
+
+        {/* Procesar archivo filtrado */}
+        <Flex  textAlign="center" width={"50%"} direction={"column"} justifyContent={"center"} alignItems={"center"}>
+          <Text fontSize="lg" fontWeight="bold" mb={2}>
+            Procesar archivo filtrado
+          </Text>
+          <Text mb={4}>
+            Este archivo contiene los clientes filtrados y está listo para ser procesado.
+          </Text>
+          <Button 
+            colorScheme="green" 
+            onClick={onProcess} 
+            width="40%"
+          >
+            Iniciar Proceso
+          </Button>
+        </Flex>
+    </Flex>
   );
 };
 

@@ -21,12 +21,15 @@ import { columns, emptyRow, ExcelRow, steps } from '../extra/typesSendFilterProc
 import FilterComponent from '../filterPageComponents/FilterComponent';
 import FileUploadForm from '../filterPageComponents/FileUploadForm';
 import ProcessComponent from '../filterPageComponents/ProcessComponent';
+import ScrapeComponent from '../filterPageComponents/ScrapeComponent';
+import FinalizeProcessComponent from '../filterPageComponents/FinalizeProcessComponent';
 
 
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [excelData, setExcelData] = useState<ExcelRow[] | null>(null);
+  const [fileProcessed, setFileProcessed] = useState<File | null>(null);
   const toast = useToast();
   const { setExcelFileByUser } = useGlobalContext();
   const { activeStep, setActiveStep } = useSteps({
@@ -94,11 +97,16 @@ export default function UploadPage() {
     setActiveStep(2);
   };
   
-  // para upload
+  // para uploadComponent
   const handleFilterClick = () => {
     if (excelData) {
       setActiveStep(1);
     }
+  };
+
+  // Función para manejar el archivo procesado
+  const handleFileProcessed = (file: File) => {
+    setFileProcessed(file);
   };
 
   const handleCancel = () => {
@@ -120,15 +128,17 @@ export default function UploadPage() {
     }
   };
 
-
   const dataToShow = excelData && excelData.length > 1 ? excelData.slice(1) : Array(10).fill(emptyRow);
 
   return (
     <Box p={4} h="screen" bg="gray.50">
       <Heading as="h1" size="xl" mb={4} color="gray.800">
-        {steps[activeStep].title}
+        {activeStep !== 4 ? (
+          steps[activeStep].title
+        ) : (
+          'Descargar Archivos'
+        )}
       </Heading>
-
       <Stepper index={activeStep} mb={8} colorScheme='green'>
         {steps.map((step, index) => (
           <Step key={index}>
@@ -153,26 +163,43 @@ export default function UploadPage() {
         </Button>
       </Flex>
 
-      <Box w="40%" mx="auto" my="4rem">
-        {activeStep === 1 ? (
-          <FilterComponent onFilter={handleFilterResults} />
-        ) : activeStep === 2 ? (
-          <ProcessComponent 
-            onProcess={() => {}}
+      <Flex w="80%" mx="auto" my="4rem" justifyContent={"center"}>
+        {activeStep === 0 && 
+          <FileUploadForm             
+          file={file} 
+          onFileChange={handleFileChange} 
+          onFilterClick={handleFilterClick} 
+          onCancel={handleCancel}  />}
+
+        {activeStep === 1 && 
+          <FilterComponent 
+            onFilter={handleFilterResults} />}
+
+        {activeStep === 2 && 
+          <ProcessComponent
+            onProcess={() => setActiveStep(3)}
             fileWithoutWhatsApp={fileWithoutWhatsApp}
             fileWithWhatsApp={fileWithWhatsApp}
             onExcelDataUpdate={setExcelData}
+            handleFileChange={handleFileChange}/>}
+        
+        {activeStep === 3 && 
+          <ScrapeComponent
+            onProcess={() => setActiveStep(4)} 
+            filePath={fileWithWhatsApp || ''}
+            onFileProcessed={handleFileProcessed}
+            />
+          }
+
+        {activeStep === 4 && 
+          <FinalizeProcessComponent
+            fileWithoutWhatsApp={fileWithoutWhatsApp}
+            fileWithWhatsApp={fileWithWhatsApp}
+            fileProcessed={fileProcessed}
             handleFileChange={handleFileChange}
-          />
-        ) : (
-          <FileUploadForm 
-            file={file} 
-            onFileChange={handleFileChange} 
-            onFilterClick={handleFilterClick} 
-            onCancel={handleCancel} 
-          />
-        )}
-      </Box>
+            />
+          }  
+      </Flex>
 
 
       <Box mb={6}>

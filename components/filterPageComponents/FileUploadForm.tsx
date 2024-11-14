@@ -35,6 +35,7 @@ const FileUploadForm: React.FC<FileUploadFormProps> = ({ onFileChange, onFilterC
       flexDirection="column"
       alignItems="center"
       mb={6}
+      width={"40%"}
     >
       <Flex height="20%" width="100%" justifyContent="center" alignItems="center">
         {file ? (

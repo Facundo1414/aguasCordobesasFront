@@ -1,3 +1,4 @@
+import { useGlobalContext } from '@/app/providers/GlobalContext';
 import { Box, Text, VStack, Spinner } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
@@ -5,9 +6,17 @@ import io from 'socket.io-client';
 const BackendLogComponent = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const { accessToken } = useGlobalContext();
+  const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
+  
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    const socket = io("http://localhost:3000", {
+      extraHeaders: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+    
 
     socket.on('connect', () => {
       setIsConnected(true);
@@ -33,12 +42,11 @@ const BackendLogComponent = () => {
       borderRadius="md"
       p={4}
       h="30rem"
-      overflowY="auto"
       bg="gray.50"
       boxShadow="md"
     >
       <Text fontWeight="bold" mb={2}>
-        Backend Logs
+        Informacion del Servidor
       </Text>
       {isConnected ? (
         logs.length > 0 ? (
