@@ -58,7 +58,7 @@ export const emptyRow = {
 };
 
 export const steps = [
-  { title: 'Subir archivo', description: 'Carga el archivo Excel' },
+  { title: 'Subir Archivo', description: 'Carga el archivo Excel' },
   { title: 'Filtrar Archivo', description: 'Aplica los filtros necesarios' },
   { title: 'Procesar Archivo', description: 'Preparar datos para envío' },
   { title: 'Envio de PDF', description: 'Enviar el archivo por WhatsApp' },

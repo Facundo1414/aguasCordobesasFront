@@ -14,7 +14,7 @@ const FileUploadForm: React.FC<FileUploadFormProps> = ({ onFileChange, onFilterC
   const toast = useToast();
 
   const handleFileChange = (file: File) => {
-    onFileChange(file);
+    const onChange = onFileChange(file);
     toast({
       title: 'Archivo cargado con éxito.',
       description: 'Puedes proceder a filtrarlo.',
@@ -43,7 +43,7 @@ const FileUploadForm: React.FC<FileUploadFormProps> = ({ onFileChange, onFilterC
             {file.name}
           </Text>
         ) : (
-          <Text color="gray.500" fontWeight={600} fontSize={22}>
+          <Text color="black.500" fontWeight={600} fontSize={22}>
             Ingrese el archivo
           </Text>
         )}

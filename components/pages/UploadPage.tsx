@@ -13,6 +13,8 @@ import {
   StepSeparator,
   StepDescription,
   useSteps,
+  StepIcon,
+  StepNumber,
 } from '@chakra-ui/react';
 import * as XLSX from 'xlsx';
 import DataTable from 'react-data-table-component';
@@ -78,14 +80,6 @@ export default function UploadPage() {
         fileName: isFile ? file.name : "Filtered Data",
         isSentOrUsed: false,
       });
-  
-      toast({
-        title: 'Archivo procesado con éxito.',
-        description: 'Los datos han sido cargados.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
     };
     reader.readAsArrayBuffer(file);
   };
@@ -144,13 +138,16 @@ export default function UploadPage() {
           <Step key={index}>
             <StepIndicator>
               <StepStatus
-                complete={<StepIndicator />}
-                incomplete={<StepIndicator />}
-                active={<StepIndicator />}
+              complete={<StepIcon />}
+              incomplete={<StepNumber />}
+              active={<StepNumber />}
               />
-            </StepIndicator>
-            <StepTitle>{step.title}</StepTitle>
-            <StepDescription>{step.description}</StepDescription>
+              </StepIndicator>
+              
+              <Box flexShrink='0'>
+              <StepTitle>{step.title}</StepTitle>
+              <StepDescription>{step.description}</StepDescription>
+              </Box>
             <StepSeparator />
           </Step>
         ))}
