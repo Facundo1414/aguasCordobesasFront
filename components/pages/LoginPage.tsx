@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, Stack, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { userLogin, getFetchQRCode, getIsLoggedIn } from '@/app/services/apiService';
+import { userLogin, getIsLoggedIn } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import QrCodeDisplay from '../filterPageComponents/QRCodeDisplay';
 

@@ -1,13 +1,13 @@
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import { Box, Text, VStack, Spinner } from '@chakra-ui/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 
 const BackendLogComponent = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const { accessToken } = useGlobalContext();
-  const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
+  const getToken = useCallback(() => accessToken || localStorage.getItem('accessToken') || '', [accessToken]);
   
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const BackendLogComponent = () => {
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [getToken]);
 
   return (
     <Box

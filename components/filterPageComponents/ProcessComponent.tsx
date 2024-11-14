@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Button, Flex, Text, useToast } from '@chakra-ui/react';
 import { DownloadIcon } from '@chakra-ui/icons';
 import { getFileByName } from '@/app/services/apiService';
@@ -22,7 +22,7 @@ const ProcessComponent: React.FC<ProcessComponentProps> = ({
 }) => {
   const toast = useToast();
   const { accessToken } = useGlobalContext();
-  const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
+  const getToken = useCallback(() => accessToken || localStorage.getItem('accessToken') || '', [accessToken]);
 
   useEffect(() => {
     const fetchFilteredData = async () => {
@@ -44,7 +44,7 @@ const ProcessComponent: React.FC<ProcessComponentProps> = ({
     };
 
     fetchFilteredData();
-  }, [fileWithWhatsApp]);
+  }, [fileWithWhatsApp, getToken, handleFileChange, toast]);
 
   // Handler to download the specified file (either with or without WhatsApp)
   const handleDownload = async (fileName: string | null) => {

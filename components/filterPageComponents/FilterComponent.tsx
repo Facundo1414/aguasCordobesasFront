@@ -86,7 +86,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilter }) => {
         mb={4}
       >
         Si los datos mostrados en la tabla coinciden con el archivo que subiste,
-        haz clic en "Filtrar Archivo" para obtener aquellos clientes con WhatsApp.
+        haz clic en &quot;Filtrar Archivo&quot; para obtener aquellos clientes con WhatsApp.
       </Text>
       <Button 
         onClick={handleFileUpload} 

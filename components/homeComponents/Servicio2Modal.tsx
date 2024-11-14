@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useToast, Flex } from '@chakra-ui/react';
 import { initializeWhatsAppSession } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
@@ -19,9 +19,10 @@ const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
   const toast = useToast();
   let qrTimer: NodeJS.Timeout | null = null;
 
-  const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
 
-  const initializeWsp = async () => {
+  const initializeWsp = useCallback(async () => {
+    const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
+
     try {
       const response = await initializeWhatsAppSession(getToken());
       if (response?.message == "ok") {
@@ -49,16 +50,17 @@ const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
         isClosable: true,
       });
     }
-  };
+  }, [accessToken, toast]);
 
   useEffect(() => {
+    let qrTimer: NodeJS.Timeout | null = null;
     if (isOpen) {
       initializeWsp(); 
     }
     return () => {
       if (qrTimer) clearTimeout(qrTimer);
     };
-  }, [isOpen]);
+  }, [isOpen,initializeWsp]);
 
   return (
     isOpen && (

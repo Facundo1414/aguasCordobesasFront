@@ -1,18 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios';
 
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:3000', //TODO Cambia esto a la URL de tu API
-  //timeout: 30000,
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
-
-
-// api.interceptors.request.use(config => {
-//   const { accessToken } = useGlobalContext();
-//   if (accessToken) {
-//     config.headers['Authorization'] = `Bearer ${accessToken}`;
-//   }
-//   return config;
-// });
 
 
 
