@@ -3,7 +3,7 @@ import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, Stack, useTo
 import { useRouter } from 'next/navigation';
 import { userLogin, getIsLoggedIn } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
-import QrCodeDisplay from '../filterPageComponents/QRCodeDisplay';
+import Cookies from 'js-cookie';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -30,6 +30,9 @@ const LoginPage = () => {
 
       localStorage.setItem('accessToken', loginResult.accessToken);
       localStorage.setItem('refreshToken', loginResult.refreshToken);
+
+      Cookies.set('accessToken', loginResult.accessToken, { expires: 1 });
+      Cookies.set('refreshToken', loginResult.refreshToken, { expires: 7 });
 
       toast({
         title: 'Inicio de sesión exitoso',

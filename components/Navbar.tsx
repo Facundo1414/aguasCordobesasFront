@@ -6,6 +6,7 @@ import { FaHome as HomeIcon, FaCloudUploadAlt as UploadIcon } from 'react-icons/
 import { Box, Flex, Button, Avatar, Image, Drawer, DrawerBody, DrawerOverlay, DrawerContent, DrawerCloseButton, useDisclosure, Text, Stack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
+import Cookies from 'js-cookie';
 
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -20,6 +21,10 @@ export default function Navbar() {
     // Limpiar el contexto
     setAccessToken("");
     setRefreshToken("");
+
+      // Eliminar cookies
+    Cookies.remove('accessToken');
+    Cookies.remove('refreshToken');
 
     // Redirigir al usuario a la página de inicio de sesión
     router.push('/login-page');

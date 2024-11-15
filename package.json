@@ -23,6 +23,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.31",
+    "js-cookie": "^3.0.5",
     "my-nextjs-project": "file:",
     "next": "^14.2.16",
     "react": "^18",
@@ -38,6 +39,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
