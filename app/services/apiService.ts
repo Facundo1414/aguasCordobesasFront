@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios';
 
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL, 
 });
 
 
@@ -70,7 +69,7 @@ export const initializeWhatsAppSession = async (token?: string): Promise<{ clien
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     };
-    const response = await api.get('/api/whatsapp/initialize', config);
+    const response = await api.get('/whatsapp/initialize', config);
     return response.data; // Devuelve el objeto con "clientId" y "qrCode" si están presentes
   } catch (error) {
     console.error('Error al verificar el estado de autenticación:', error);
@@ -82,9 +81,9 @@ export const initializeWhatsAppSession = async (token?: string): Promise<{ clien
 
 
 // Subir un archivo Excel
-export const uploadExcelFile = async (url: string, formData: FormData, token: string) => {
+export const uploadExcelFile = async ( formData: FormData, token: string) => {
   try {
-    const response: AxiosResponse<any> = await api.post(url, formData, {
+    const response: AxiosResponse<any> = await api.post("/upload/excel", formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -102,27 +101,25 @@ export const uploadExcelFile = async (url: string, formData: FormData, token: st
   }
 };
 
-// Obtener un archivo por su nombre
+// Obtener un archivo por su nombre 
 export const getFileByName = async (fileName: string, token: string): Promise<Blob> => {
   try {
-    const response = await fetch(`http://localhost:3000/api/getFileByName/${fileName}`, {
-      method: 'GET',
+    const config: AxiosRequestConfig = {
       headers: {
-        'Authorization': `Bearer ${token}`, // Incluye el token en los headers
+        Authorization: `Bearer ${token}`,
       },
-    });
+      responseType: 'blob', // Asegura que la respuesta sea tratada como un Blob
+    };
 
-    if (!response.ok) {
-      throw new Error(`Error al obtener el archivo: ${response.statusText}`);
-    }
+    const response: AxiosResponse<Blob> = await api.get(`/upload/getFileByName/${fileName}`, config);
 
-    const fileBlob = await response.blob();
-    return fileBlob;
+    return response.data; // Devuelve el archivo como un Blob
   } catch (error) {
     console.error('Error al obtener el archivo:', error);
-    throw error;
+    throw new Error('Error al obtener el archivo');
   }
 };
+
 
 // Enviar y hacer scraping de un archivo
 export const sendAndScrape = async (

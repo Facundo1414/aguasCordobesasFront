@@ -40,7 +40,7 @@ const FilterComponent: React.FC<FilterComponentProps> = ({ onFilter }) => {
   const handleFileUpload = async () => {
     try {
       const formData = createFormData();
-      const response = await uploadExcelFile('/upload/excel', formData, getToken());
+      const response = await uploadExcelFile(formData, getToken());
 
       if (response.savedFileNames) {
         toast({
