@@ -208,4 +208,25 @@ export const checkFileStatus = async (fileName: string, token: string) => {
   }
 };
 
+
+// Verificar si el token del usuario sigue siendo válido
+export const checkValidateToken = async (token: string): Promise<boolean> => {
+  try {
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const response: AxiosResponse<any> = await api.post('/auth/check-token', {}, config);
+
+    return response.status === 200;
+  } catch (error) {
+    console.error('Error al validar el token:', error);
+    return false;
+  }
+};
+
+
+
 export default api;
