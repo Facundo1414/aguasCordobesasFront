@@ -1,7 +1,8 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
+  withCredentials: true
 });
 
 
@@ -54,7 +55,7 @@ export const getIsLoggedIn = async (token?: string) => {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     };
-    const response: AxiosResponse<any> = await api.get('/api/whatsapp/isLoggedIn', config);
+    const response: AxiosResponse<any> = await api.get('/whatsapp/isLoggedIn', config);
     return response.data;
   } catch (error) {
     console.error('Error al verificar el estado de autenticación:', error);
@@ -185,6 +186,25 @@ export const userLogout = async () => {
     await api.post('/auth/logout');
   } catch (error) {
     console.error('Error en logout:', error);
+  }
+};
+
+
+export const checkFileStatus = async (fileName: string, token: string) => {
+  try {
+    // Realizar la petición GET al endpoint '/upload/file-status'
+    const response = await get('/upload/file-status', { filename: fileName }, token);
+    
+    // Manejar la respuesta dependiendo del estado
+    if (response.data.status === 'processed') {
+      console.log('El archivo ha sido procesado:', response.data.message);
+    } else if (response.data.status === 'processing') {
+      console.log('El archivo está siendo procesado:', response.data.message);
+    } else {
+      console.log('Estado desconocido:', response.data.message);
+    }
+  } catch (error) {
+    console.error('Error al verificar el estado del archivo:', error);
   }
 };
 

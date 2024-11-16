@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { Button, Flex, Text, useToast } from '@chakra-ui/react';
 import { DownloadIcon } from '@chakra-ui/icons';
-import { getFileByName } from '@/app/services/apiService';
+import { checkFileStatus, getFileByName } from '@/app/services/apiService';
 import { ExcelRow } from '../extra/typesSendFilterProcessPage';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 
@@ -28,6 +28,8 @@ const ProcessComponent: React.FC<ProcessComponentProps> = ({
     const fetchFilteredData = async () => {
       if (fileWithWhatsApp) {
         try {
+          await checkFileStatus(fileWithWhatsApp, getToken());
+
           const fileBlob = await getFileByName(fileWithWhatsApp || "", getToken());
           handleFileChange(fileBlob);
         } catch (error) {
@@ -44,7 +46,7 @@ const ProcessComponent: React.FC<ProcessComponentProps> = ({
     };
 
     fetchFilteredData();
-  }, [fileWithWhatsApp, getToken, handleFileChange, toast]);
+  }, [fileWithWhatsApp, toast]);
 
   // Handler to download the specified file (either with or without WhatsApp)
   const handleDownload = async (fileName: string | null) => {
