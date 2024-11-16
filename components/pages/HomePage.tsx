@@ -27,7 +27,7 @@ export default function HomePage() {
       if (response.isLoggedIn) {
         router.push('/upload-page');
       } else {
-        //handleOpenServicio2Modal();
+        handleOpenServicio2Modal();
       }
     } catch (error) {
       console.error("Error al verificar el estado de inicio de sesión:", error);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useToast, Flex } from '@chakra-ui/react';
-import { initializeWhatsAppSession } from '@/app/services/apiService';
+import { useToast, Flex, Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@chakra-ui/react';
+import { getIsLoggedIn, initializeWhatsAppSession } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import QrCodeDisplay from '../filterPageComponents/QRCodeDisplay';
 
@@ -17,28 +17,40 @@ const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
   const [isLoadingQr, setIsLoadingQr] = useState(true);
   const [isSessionReady, setIsSessionReady] = useState(false);
   const toast = useToast();
-  let qrTimer: NodeJS.Timeout | null = null;
-
 
   const initializeWsp = useCallback(async () => {
     const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
 
     try {
-      const response = await initializeWhatsAppSession(getToken());
-      if (response?.message == "ok") {
-        setIsSessionReady(true); 
-        setQrCode(null);
+      const responsecheck = await getIsLoggedIn(getToken());
+      if (responsecheck.isLoggedIn) {
+        // Si ya está logueado, no necesitamos mostrar el QR y solo mostramos el mensaje de sesión activa
+        setIsSessionReady(true);
+        setQrCode(null); // El QR ya no es necesario
         setIsLoadingQr(false);
         toast({
-          title: 'Sesión en WhatsApp iniciada con exito.',
-          status: 'success',
+          title: 'Sesión en WhatsApp ya iniciada.',
+          status: 'info',
           duration: 3000,
           isClosable: true,
         });
-
-      } else if (response?.qrCode) {
-        setQrCode(response.qrCode);
-        setIsLoadingQr(false);
+      } else {
+        // Si no está logueado, obtenemos el QR
+        const response = await initializeWhatsAppSession(getToken());
+        if (response?.message === "ok") {
+          setIsSessionReady(true); 
+          setQrCode(null);
+          setIsLoadingQr(false);
+          toast({
+            title: 'Sesión en WhatsApp iniciada con éxito.',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+        } else if (response?.qrCode) {
+          setQrCode(response.qrCode);
+          setIsLoadingQr(false);
+        }
       }
     } catch (error) {
       console.error('Error en la inicialización de WhatsApp:', error);
@@ -53,34 +65,47 @@ const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
   }, [accessToken, toast]);
 
   useEffect(() => {
-    let qrTimer: NodeJS.Timeout | null = null;
     if (isOpen) {
       initializeWsp(); 
     }
-    return () => {
-      if (qrTimer) clearTimeout(qrTimer);
-    };
-  }, [isOpen,initializeWsp]);
+  }, [isOpen, initializeWsp]);
 
   return (
     isOpen && (
       <Flex flexDirection="column" alignItems="center">
-        <QrCodeDisplay
-          qrCode={qrCode}
-          isLoadingQr={isLoadingQr}
-          isModalOpen={isOpen}
-          onClose={onClose}
-          onQrScanSuccess={() => {
-            toast({
-              title: 'Inicio de sesión exitoso',
-              status: 'success',
-              duration: 3000,
-              isClosable: true,
-            });
-            setIsSessionReady(true);
-            onClose();
-          }}
-        />
+        {isSessionReady ? (
+          // Si la sesión está lista, mostramos el mensaje
+          <Modal isOpen={isOpen} onClose={onClose} isCentered>
+            <ModalOverlay />
+            <ModalContent boxSize={500}>
+              <ModalHeader>Sesión activa en WhatsApp</ModalHeader>
+              <ModalBody display="flex" justifyContent="center" alignItems="center">
+                <Text fontSize="lg">No es necesario iniciar sesión nuevamente.</Text>
+              </ModalBody>
+              <ModalFooter>
+                <Button colorScheme="red" onClick={onClose}>Cerrar</Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+        ) : (
+          // Si no está lista, mostramos el QR
+          <QrCodeDisplay
+            qrCode={qrCode}
+            isLoadingQr={isLoadingQr}
+            isModalOpen={isOpen}
+            onClose={onClose}
+            onQrScanSuccess={() => {
+              toast({
+                title: 'Inicio de sesión exitoso',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+              });
+              setIsSessionReady(true);
+              onClose();
+            }}
+          />
+        )}
       </Flex>
     )
   );

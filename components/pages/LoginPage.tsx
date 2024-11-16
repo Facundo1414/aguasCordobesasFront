@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, Stack, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { userLogin, getIsLoggedIn } from '@/app/services/apiService';
+import { userLogin, getIsLoggedIn, initializeWhatsAppSession } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import Cookies from 'js-cookie';
 
@@ -33,6 +33,8 @@ const LoginPage = () => {
 
       Cookies.set('accessToken', loginResult.accessToken, { expires: 1 });
       Cookies.set('refreshToken', loginResult.refreshToken, { expires: 7 });
+
+      initializeWhatsAppSession(loginResult.accessToken)
 
       toast({
         title: 'Inicio de sesión exitoso',
