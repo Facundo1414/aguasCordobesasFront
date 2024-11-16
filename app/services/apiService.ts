@@ -218,7 +218,7 @@ export const checkValidateToken = async (token: string): Promise<boolean> => {
       },
     };
 
-    const response: AxiosResponse<any> = await api.post('/auth/check-token', {}, config);
+    const response: AxiosResponse<any> = await api.post('/auth/validate-token', {}, config);
 
     return response.status === 200;
   } catch (error) {
