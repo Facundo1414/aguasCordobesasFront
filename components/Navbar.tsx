@@ -31,7 +31,7 @@ export default function Navbar() {
   };
 
   return (
-    <Box bg="teal.600" color="white" p={2} h={16}>
+    <Box bg="blue.900" color="white" p={2} h={16}>
       <Flex align="center" w={"100%"}>
         <Flex w={"10%"} justifyContent={"center"} alignItems={"center"}>
           <Link href="/" passHref>
@@ -46,7 +46,7 @@ export default function Navbar() {
             <Button
               variant="ghost"
               leftIcon={<HomeIcon />}
-              _hover={{ bg: 'green.300' }}
+              _hover={{ bg: 'teal.400' }}
               color="whiteAlpha.900"
               fontSize="lg"
             >
@@ -57,8 +57,8 @@ export default function Navbar() {
 
         <Flex w={"10%"} justifyContent={"center"} alignItems={"center"}>
           <Avatar
-            bg="blue.300"
-            color="blue.600"
+            bg="teal.300"
+            color="teal.600"
             cursor="pointer"
             onClick={onOpen}
           />

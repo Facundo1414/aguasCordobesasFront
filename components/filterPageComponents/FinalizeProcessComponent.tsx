@@ -75,7 +75,7 @@ const FinalizeProcessComponent: React.FC<FinalizeProcessComponentProps> = ({ fil
     }
 
   return (
-    <Flex direction={"column"} alignItems={"center"} p={6} borderWidth="1px" borderRadius="lg" shadow="md">
+    <Flex direction="column" alignItems="center" p={6} px={12} borderWidth="1px" borderRadius="lg" shadow="md">
       <Heading as="h3" size="lg" mb={4}>
         Proceso Completado
       </Heading>
@@ -84,61 +84,65 @@ const FinalizeProcessComponent: React.FC<FinalizeProcessComponentProps> = ({ fil
         El proceso ha finalizado satisfactoriamente. A continuación, puedes descargar los archivos generados.
       </Text>
 
-      <Flex direction="column" mb={4} gap={4}>
-        {/* Botones para descargar los archivos */}
-            
-            {/* Descargar Excel de clientes que no se pudieron procesar */}
-            <Flex direction="row" alignItems={"center"} justifyContent={"center"} gap={4}>
-                <Text fontSize="lg" fontWeight="bold">
-                    Descargar Excel de clientes que no se pudieron procesar
-                </Text>
-                <Button
-                    variant="outline" 
-                    colorScheme="teal" 
-                    onClick={() => handleDownloadBlob()}
-                    isDisabled={!fileProcessed}
-                >
-                    <DownloadIcon />
-                </Button>
-            </Flex>
+      <Flex direction="column" mb={4} gap={4} justifyContent="space-between">
+        {/* Descargar Excel de clientes que no se pudieron procesar */}
+        <Flex direction="row" alignItems={"center"} justifyContent={"space-between"} gap={4} width="100%">
+          <Text fontSize="lg" fontWeight="bold">
+            Clientes a los que no se le envio el PDF
+          </Text>
+          <Button
+            variant="outline"
+            colorScheme="teal"
+            onClick={() => handleDownloadBlob()}
+            isDisabled={!fileProcessed}
+          >
+            <DownloadIcon />
+          </Button>
+        </Flex>
 
-          {/* Descargar clientes con WhatsApp */}
-          <Flex direction="row" alignItems={"center"} justifyContent={"center"} gap={4}>
-            <Text fontSize="lg" fontWeight="bold">
-              Descargar Excel de clientes con WhatsApp
-            </Text>
-            <Button 
-              variant="outline"
-              colorScheme="blue" 
-              onClick={() => handleDownload(fileWithWhatsApp)} 
-              isDisabled={!fileWithWhatsApp}
-            >
-              <DownloadIcon />
-            </Button>
-          </Flex>
-          
-          
-          {/* Descargar clientes sin WhatsApp */}
-          <Flex direction="row" alignItems={"center"} justifyContent={"center"} gap={4}>
-            <Text fontSize="lg" fontWeight="bold">
-              Descargar Excel de clientes sin WhatsApp
-            </Text>
-            <Button
-              variant="outline" 
-              colorScheme="orange" 
-              onClick={() => handleDownload(fileWithoutWhatsApp)} 
-              isDisabled={!fileWithoutWhatsApp}
-            >
-              <DownloadIcon />
-            </Button>
-          </Flex>
+        {/* Descargar clientes con WhatsApp */}
+        <Flex direction="row" alignItems={"center"} justifyContent={"space-between"} gap={4} width="100%">
+          <Text fontSize="lg" fontWeight="bold" >
+            Clientes con WhatsApp
+          </Text>
+          <Button
+            variant="outline"
+            colorScheme="blue"
+            onClick={() => handleDownload(fileWithWhatsApp)}
+            isDisabled={!fileWithWhatsApp}
+          >
+            <DownloadIcon />
+          </Button>
+        </Flex>
+
+        {/* Descargar clientes sin WhatsApp */}
+        <Flex direction="row" alignItems={"center"} justifyContent={"space-between"} gap={4} width="100%">
+          <Text fontSize="lg" fontWeight="bold">
+            Clientes sin WhatsApp
+          </Text>
+          <Button
+            variant="outline"
+            colorScheme="orange"
+            onClick={() => handleDownload(fileWithoutWhatsApp)}
+            isDisabled={!fileWithoutWhatsApp}
+          >
+            <DownloadIcon />
+          </Button>
+        </Flex>
 
         {/* Botón para regresar a la página principal */}
-        <Button colorScheme="teal" onClick={onGoBackHome} mt={4}>
+        <Button
+          onClick={onGoBackHome}
+          mt={4}
+          bg="blue.500"
+          color="white"
+          rounded="lg"
+          _hover={{ bg: "blue.300" }}
+          minWidth="120px"
+        >
           Volver a la página principal
         </Button>
       </Flex>
-
     </Flex>
   );
 };

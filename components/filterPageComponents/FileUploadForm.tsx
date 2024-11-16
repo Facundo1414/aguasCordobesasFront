@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Flex, Text, useToast } from '@chakra-ui/react';
 import { FileUploader } from 'react-drag-drop-files';
 import { fileTypes } from '../extra/typesSendFilterProcessPage';
+import { motion } from 'framer-motion';
 
 interface FileUploadFormProps {
   onFileChange: (file: File) => void;
@@ -48,14 +49,30 @@ const FileUploadForm: React.FC<FileUploadFormProps> = ({ onFileChange, onFilterC
           </Text>
         )}
       </Flex>
+
       <Flex height="60%" width="100%" justifyContent="center" alignItems="center">
-        <FileUploader handleChange={handleFileChange} name="file" types={fileTypes} alignSelf="center" />
-      </Flex>
+        <motion.div
+        animate={{
+          scale: [1, 1.05, 1], 
+          opacity: [0.8, 1, 0.8], 
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: 3, 
+          repeatType: 'loop', 
+        }}
+      >
+        <Flex height="60%" width="100%" justifyContent="center" alignItems="center">
+          <FileUploader handleChange={handleFileChange} name="file" types={fileTypes} alignSelf="center" />
+        </Flex>
+      </motion.div>      
+    </Flex>
+
       <Flex height="20%" width="100%" padding={6} justifyContent="space-between" alignItems="center">
-        <Button onClick={onCancel} bg="red.500" color="white" rounded="lg" _hover={{ bg: "red.600" }} minWidth="120px">
+        <Button onClick={onCancel} bg="gray.600" color="white" rounded="lg" _hover={{ bg: "red.400" }} minWidth="120px">
           Cancelar
         </Button>
-        <Button onClick={onFilterClick} bg="green.300" color="white" rounded="lg" _hover={{ bg: "green.600" }} minWidth="120px">
+        <Button onClick={onFilterClick} bg="blue.500" color="white" rounded="lg" _hover={{ bg: "blue.300" }} minWidth="120px">
           Siguiente Paso
         </Button>
       </Flex>

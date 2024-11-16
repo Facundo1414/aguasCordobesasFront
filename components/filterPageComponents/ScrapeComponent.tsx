@@ -7,17 +7,23 @@ import { useGlobalContext } from '@/app/providers/GlobalContext';
 
 interface ScrapeComponentProps {
   filePath: string;
-  onFileProcessed: (file: File) => void;
+  onFileProcessed: (file: File | null) => void;
   onProcess: () => void;
-
+  handleBack: () => void;
 }
 
-const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProcessed,onProcess  }) => {
+const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProcessed,onProcess,handleBack  }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [processComplete, setProcessComplete] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const toast = useToast();
   const { accessToken } = useGlobalContext();
   const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
+
+
+  const onClickHandle = ()=>{
+    onFileProcessed(file);
+  }
 
   const handleScrapeProcess = async () => {
     if (!filePath) {
@@ -39,7 +45,7 @@ const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProce
       if (response?.file) {
         const fileBlob = new Blob([response.file], { type: 'application/pdf' });
         const file = new File([fileBlob], 'processed-file.pdf');
-        onFileProcessed(file);
+        setFile(file)
       }
 
 
@@ -79,7 +85,7 @@ const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProce
       gap={6}
     >
       {/* Columna izquierda: Componente de log */}
-      <Box flex="1" borderRadius="md" overflowY="auto" maxHeight="400px">
+      <Box flex="1" borderRadius="md" overflowY="hidden" maxHeight="400px" py={2}>
         <BackendLogComponent />
       </Box>
 
@@ -104,27 +110,39 @@ const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProce
         {isLoading ? (
           <Flex direction="column" align="center" mb={4} justifyContent={"center"} alignItems={"center"} gap={4}>
             <Loader />
-            <Text mt={2} fontSize="lg" color="gray.600">
+            <Text mt={2} fontSize="lg" color="gray.600" >
               Enviando archivos PDF a los clientes por whatsapp, por favor espera...
             </Text>
           </Flex>
         ) : (
-          <ScaleFade in={!processComplete} initialScale={0.9}>
+          <ScaleFade in={!processComplete} initialScale={0.4}>
             {!processComplete && (
               <Flex width="100%" direction="column" align="center"  justifyContent="center">
-                <Text fontSize="lg" color="gray.600" textAlign="center" mb={4}>
+                <Text fontSize="lg" color="gray.600" textAlign="center" mb={4} width={"80%"}>
                   {processComplete
                     ? 'El archivo se ha procesado con éxito. Puedes ver los registros en la consola.'
                     : 'Las deudas serán enviadas a los clientes a través de WhatsApp. Este proceso puede tardar unos minutos. Puedes seguir el progreso directamente desde la aplicación de WhatsApp en tu celular.'}
                 </Text>
-                  <Button
-                    colorScheme="green"
-                    onClick={handleScrapeProcess}
-                    mb={4}
-                    width="60%"
-                  >
-                    Iniciar Extracción
-                  </Button>
+                  <Flex  width="60%"  justifyContent="space-between" alignItems="center">        
+                    <Button 
+                      bg="gray.600" 
+                      color="white" 
+                      rounded="lg" 
+                      _hover={{ bg: "red.400" }} 
+                      minWidth="120px"            
+                      onClick={handleBack} 
+                      >
+                      Volver
+                    </Button>
+                    <Button
+                      bg="blue.500" color="white" rounded="lg" _hover={{ bg: "blue.300" }} minWidth="120px"
+                      onClick={handleScrapeProcess}
+                      mb={4}
+                      width="40%"
+                    >
+                      Iniciar Envio
+                    </Button>
+                  </Flex>
               </Flex>
             )}
           </ScaleFade>
@@ -138,11 +156,10 @@ const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProce
               </Text>
               <Image src="/logoWater.png" alt="Logo" boxSize="50%" mx="auto" />
               <Button
-                    colorScheme="green"
-                    onClick={onProcess}
-                    mb={4}
-                    width="60%"
-                    alignSelf={"center"}
+                      bg="blue.500" color="white" rounded="lg" _hover={{ bg: "blue.300" }} minWidth="120px"
+                      width="40%"
+                      alignSelf={"center"}
+                      onClick={onClickHandle}
                   >
                     Continuar
               </Button>

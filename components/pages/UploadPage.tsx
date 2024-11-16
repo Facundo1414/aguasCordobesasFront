@@ -93,15 +93,31 @@ export default function UploadPage() {
   
   // para uploadComponent
   const handleFilterClick = () => {
-    if (excelData) {
-      setActiveStep(1);
+    if (!file) {
+      toast({
+        title: 'No has subido un archivo.',
+        description: 'Por favor, sube un archivo para continuar.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } else {
+      setActiveStep(1);  // Procede si hay un archivo
     }
   };
+  
 
-  // Función para manejar el archivo procesado
-  const handleFileProcessed = (file: File) => {
-    setFileProcessed(file);
+  // Función para manejar el archivo procesado para Scrape Component
+  const handleFileProcessed = (file: File | null) => {
+    if (file) {
+      
+      setFileProcessed(file);
+      setActiveStep(4);
+    }
+
   };
+
+
 
   const handleCancel = () => {
     setFile(null);
@@ -153,13 +169,6 @@ export default function UploadPage() {
         ))}
       </Stepper>
 
-
-      <Flex justify="space-between" mt={4} mb={6}>
-        <Button onClick={handleBack} disabled={activeStep === 0} colorScheme='red'>
-          Volver
-        </Button>
-      </Flex>
-
       <Flex w="80%" mx="auto" my="4rem" justifyContent={"center"}>
         {activeStep === 0 && 
           <FileUploadForm             
@@ -170,7 +179,10 @@ export default function UploadPage() {
 
         {activeStep === 1 && 
           <FilterComponent 
-            onFilter={handleFilterResults} />}
+            onFilter={handleFilterResults}
+            handleBack={handleBack}
+            />
+            }
 
         {activeStep === 2 && 
           <ProcessComponent
@@ -178,13 +190,16 @@ export default function UploadPage() {
             fileWithoutWhatsApp={fileWithoutWhatsApp}
             fileWithWhatsApp={fileWithWhatsApp}
             onExcelDataUpdate={setExcelData}
-            handleFileChange={handleFileChange}/>}
+            handleFileChange={handleFileChange}
+            handleBack={handleBack}
+            />}
         
         {activeStep === 3 && 
           <ScrapeComponent
             onProcess={() => setActiveStep(4)} 
             filePath={fileWithWhatsApp || ''}
             onFileProcessed={handleFileProcessed}
+            handleBack={handleBack}
             />
           }
 
@@ -199,7 +214,7 @@ export default function UploadPage() {
       </Flex>
 
 
-      <Box mb={6}>
+      <Box mb={2}>
         <DataTable
           columns={columns}
           data={dataToShow}

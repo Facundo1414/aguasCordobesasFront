@@ -44,6 +44,7 @@ const BackendLogComponent = () => {
       h="30rem"
       bg="gray.50"
       boxShadow="md"
+      overflowY="scroll"
     >
       <Text fontWeight="bold" mb={2}>
         Informacion del Servidor

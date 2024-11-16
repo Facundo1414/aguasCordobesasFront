@@ -4,18 +4,18 @@ import { getIsLoggedIn, initializeWhatsAppSession } from '@/app/services/apiServ
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import QrCodeDisplay from '../filterPageComponents/QRCodeDisplay';
 
-interface Servicio2ModalProps {
+interface WhatsappSesionIntializeProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const MAX_QR_ATTEMPTS = 5; // Máximo número de intentos para obtener el código QR
 
-const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
+const WhatsappSesionIntialize: React.FC<WhatsappSesionIntializeProps & { setIsSessionReady: (value: boolean) => void }> = ({ isOpen, onClose, setIsSessionReady }) => {
   const { accessToken } = useGlobalContext();
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [isLoadingQr, setIsLoadingQr] = useState(true);
-  const [isSessionReady, setIsSessionReady] = useState(false);
+  const [isSessionReady, setIsSessionReadyInternal] = useState(false);
   const toast = useToast();
 
   const initializeWsp = useCallback(async () => {
@@ -24,9 +24,9 @@ const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
     try {
       const responsecheck = await getIsLoggedIn(getToken());
       if (responsecheck.isLoggedIn) {
-        // Si ya está logueado, no necesitamos mostrar el QR y solo mostramos el mensaje de sesión activa
-        setIsSessionReady(true);
-        setQrCode(null); // El QR ya no es necesario
+        setIsSessionReady(true); // Establecer sesión lista
+        setIsSessionReadyInternal(true);
+        setQrCode(null);
         setIsLoadingQr(false);
         toast({
           title: 'Sesión en WhatsApp ya iniciada.',
@@ -35,10 +35,10 @@ const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
           isClosable: true,
         });
       } else {
-        // Si no está logueado, obtenemos el QR
         const response = await initializeWhatsAppSession(getToken());
         if (response?.message === "ok") {
-          setIsSessionReady(true); 
+          setIsSessionReady(true);
+          setIsSessionReadyInternal(true);
           setQrCode(null);
           setIsLoadingQr(false);
           toast({
@@ -66,7 +66,7 @@ const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      initializeWsp(); 
+      initializeWsp();
     }
   }, [isOpen, initializeWsp]);
 
@@ -111,4 +111,4 @@ const Servicio2Modal: React.FC<Servicio2ModalProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default Servicio2Modal;
+export default WhatsappSesionIntialize;

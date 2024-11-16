@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { Box, Grid, GridItem, Heading, Text, Image, Flex } from '@chakra-ui/react';
-import {  ChevronRightIcon, EmailIcon,  PlusSquareIcon, QuestionIcon } from '@chakra-ui/icons';
-import Servicio2Modal from '../homeComponents/Servicio2Modal';
+import { Box, Grid, GridItem, Heading, Text, Image, Flex, IconButton } from '@chakra-ui/react';
+import { ChevronRightIcon, EmailIcon, PhoneIcon, PlusSquareIcon, QuestionIcon } from '@chakra-ui/icons';
 import ModalEnDesarrollo from '../homeComponents/ModalEnDesarrollo';
 import { useRouter } from 'next/navigation';
 import { getIsLoggedIn } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
+import WhatsappSesionIntialize from '../homeComponents/WhatsappSesionIntializeModal';
+import { motion } from 'framer-motion';  // Importar motion
+import Link from 'next/link';
+
+// Usamos motion.div en lugar de Box para las tarjetas y modales
 
 export default function HomePage() {
   const router = useRouter();
   const [isServicio2ModalOpen, setIsServicio2ModalOpen] = useState(false);
   const [isEnDesarrolloModalOpen, setIsEnDesarrolloModalOpen] = useState(false);
+  const [isSessionReady, setIsSessionReady] = useState(false);
 
   const handleOpenServicio2Modal = () => setIsServicio2ModalOpen(true);
   const handleCloseServicio2Modal = () => setIsServicio2ModalOpen(false);
@@ -18,31 +23,34 @@ export default function HomePage() {
   const handleOpenEnDesarrolloModal = () => setIsEnDesarrolloModalOpen(true);
   const handleCloseEnDesarrolloModal = () => setIsEnDesarrolloModalOpen(false);
 
-  const {accessToken} = useGlobalContext()
+  const { accessToken } = useGlobalContext();
   const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
 
   const handleClick = async () => {
-    try {
-      const response = await getIsLoggedIn(getToken());
-      if (response.isLoggedIn) {
-        router.push('/upload-page');
-      } else {
-        handleOpenServicio2Modal();
+    if (isSessionReady) {
+      router.push('/upload-page');
+    } else {
+      try {
+        const response = await getIsLoggedIn(getToken());
+        if (response.isLoggedIn) {
+          router.push('/upload-page');
+        } else {
+          handleOpenServicio2Modal();
+        }
+      } catch (error) {
+        console.error("Error al verificar el estado de inicio de sesión:", error);
       }
-    } catch (error) {
-      console.error("Error al verificar el estado de inicio de sesión:", error);
     }
   };
 
-
   return (
-    <Box py={8} px={[4, 8, 20]}>
+    <Box py={10} px={[4, 8, 20]}>
       <Grid templateColumns="repeat(12, 1fr)" gap={4}>
         {/* Encabezado con logo y texto */}
         <GridItem colSpan={12}>
           <Flex borderRadius="lg" bg="white" shadow="lg">
             <Flex width={"30%"} justifyContent="center" alignItems="center" p={4} overflow={"hidden"}>
-              <Flex width={"40%"} flexDirection={"column"} justifyContent="center" >
+              <Flex width={"40%"} flexDirection={"column"} justifyContent={"center"}>
                 <Heading as="h2">AQUA</Heading>
                 <Text fontWeight="normal" fontSize={"1.2rem"} color="gray.600">
                   Al servicio de Cclip.
@@ -78,99 +86,161 @@ export default function HomePage() {
             <Box mt={4} w="60px" h="4px" bg="blue.300" borderRadius="full" />
           </Flex>
           <Grid templateColumns="repeat(3, 1fr)" gap={4} mt={8}>
-            {/* Primera fila: 3 Cards */}
+            {/* Primera tarjeta */}
             <GridItem colSpan={1}>
-              <Box
-                p={4}
-                bg="teal.400"
-                borderRadius="md"
-                display="flex"
-                w="100%"
-                h="6rem"
-                alignItems="center"
-                as="button"
-                onClick={handleClick}
+              <motion.div
+                whileHover={{ scale: 1.05 }} // Efecto al pasar el ratón
+                whileTap={{ scale: 0.95 }}   // Efecto de clic
+                transition={{ type: "spring", stiffness: 300 }}
               >
-                <EmailIcon w={8} h={8} color="white" />
-                <Text ml={4} fontSize="lg" color="white">
-                  Enviar Deudas a Clientes
-                </Text>
-              </Box>
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Box
-                p={4}
-                bg="orange.400"
-                borderRadius="md"
-                display="flex"
-                w="100%"
-                h="6rem"
-                alignItems="center"
-                onClick={handleOpenServicio2Modal}
-                as="button"
-              >
-                <ChevronRightIcon w={8} h={8} color="white" />
-                <Text ml={4} fontSize="lg" color="white">
-                  Iniciar Sesion en Whatsapp
-                </Text>
-              </Box>
-              <Servicio2Modal isOpen={isServicio2ModalOpen} onClose={handleCloseServicio2Modal} />
-            </GridItem>
-            <GridItem colSpan={1}>
-              <Box
-                p={4}
-                bg="orange.400"
-                borderRadius="md"
-                display="flex"
-                w={"100%"}
-                h={"6rem"}
-                alignItems="center"
-                onClick={handleOpenEnDesarrolloModal}
-                as="button"
-              >
-                <PlusSquareIcon w={8} h={8} color="white" />
-                <Text ml={4} fontSize="lg" color="white">
-                  Guardar Clientes
-                </Text>
-              </Box>
+                <Box
+                  p={4}
+                  bg="teal.400"
+                  borderRadius="md"
+                  display="flex"
+                  w="100%"
+                  h="6rem"
+                  alignItems="center"
+                  as="button"
+                  onClick={handleClick}
+                >
+                  <EmailIcon w={8} h={8} color="white" />
+                  <Text ml={4} fontSize="lg" color="white">
+                    Enviar Deudas a Clientes
+                  </Text>
+                </Box>
+              </motion.div>
             </GridItem>
 
-            {/* Segunda fila: 2 Cards */}
+            {/* Segunda tarjeta */}
             <GridItem colSpan={1}>
-              <Box
-                p={4}
-                bg="green.400"
-                borderRadius="md"
-                display="flex"
-                w={"100%"}
-                h={"6rem"}
-                alignItems="center"
-                onClick={handleOpenEnDesarrolloModal}
-                as="button"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
               >
-                <QuestionIcon w={8} h={8} color="white" />
-                <Text ml={4} fontSize="lg" color="white">
-                  Informacion
-                </Text>
-              </Box>
+                <Box
+                  p={4}
+                  bg="blue.400"
+                  borderRadius="md"
+                  display="flex"
+                  w="100%"
+                  h="6rem"
+                  alignItems="center"
+                  onClick={handleOpenServicio2Modal}
+                  as="button"
+                >
+                  <ChevronRightIcon w={8} h={8} color="white" />
+                  <Text ml={4} fontSize="lg" color="white">
+                    Iniciar Sesion en Whatsapp
+                  </Text>
+                </Box>
+                <WhatsappSesionIntialize isOpen={isServicio2ModalOpen} onClose={handleCloseServicio2Modal} setIsSessionReady={setIsSessionReady} />
+              </motion.div>
             </GridItem>
-            <GridItem colSpan={2}>
-              <Box
-                p={4}
-                bg="blue.400"
-                borderRadius="md"
-                display="flex"
-                w={"100%"}
-                h={"6rem"}
-                alignItems="center"
-                onClick={handleOpenEnDesarrolloModal}
-                as="button"
+
+            {/* Tercera tarjeta */}
+            <GridItem colSpan={1}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
               >
-                <ChevronRightIcon w={8} h={8} color="white" />
-                <Text ml={4} fontSize="lg" color="white">
-                  Archivos Guardados
-                </Text>
-              </Box>
+                <Box
+                  p={4}
+                  bg="teal.400"
+                  borderRadius="md"
+                  display="flex"
+                  w="100%"
+                  h="6rem"
+                  alignItems="center"
+                  onClick={handleOpenEnDesarrolloModal}
+                  as="button"
+                >
+                  <PlusSquareIcon w={8} h={8} color="white" />
+                  <Text ml={4} fontSize="lg" color="white">
+                    Guardar Clientes
+                  </Text>
+                </Box>
+              </motion.div>
+            </GridItem>
+
+            {/* Cuarta tarjeta */}
+            <GridItem colSpan={1}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Box
+                  p={4}
+                  bg="blue.400"
+                  borderRadius="md"
+                  display="flex"
+                  w="100%"
+                  h="6rem"
+                  alignItems="center"
+                  onClick={handleOpenEnDesarrolloModal}
+                  as="button"
+                >
+                  <QuestionIcon w={8} h={8} color="white" />
+                  <Text ml={4} fontSize="lg" color="white">
+                    Preguntas Frecuentes
+                  </Text>
+                </Box>
+              </motion.div>
+            </GridItem>
+
+            {/* Quinta tarjeta */}
+            <GridItem colSpan={1}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Box
+                  p={4}
+                  bg="teal.400"
+                  borderRadius="md"
+                  display="flex"
+                  w="100%"
+                  h="6rem"
+                  alignItems="center"
+                  onClick={handleOpenEnDesarrolloModal}
+                  as="button"
+                >
+                  <PlusSquareIcon w={8} h={8} color="white" />
+                  <Text ml={4} fontSize="lg" color="white">
+                    Más Detalles
+                  </Text>
+                </Box>
+              </motion.div>
+            </GridItem>
+
+            {/* Sexta tarjeta */}
+            <GridItem colSpan={1}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Box
+                  p={4}
+                  bg="blue.400" 
+                  borderRadius="md"
+                  display="flex"
+                  w="100%"
+                  h="6rem"
+                  alignItems="center"
+                  onClick={handleOpenEnDesarrolloModal}
+                  as="button"
+                >
+                  <PlusSquareIcon w={8} h={8} color="white" />
+                  <Text ml={4} fontSize="lg" color="white">
+                    Bot para respuestas automaticas en whatsapp
+                  </Text>
+                </Box>
+              </motion.div>
             </GridItem>
           </Grid>
         </GridItem>
