@@ -36,7 +36,7 @@ const WhatsappSesionIntialize: React.FC<WhatsappSesionIntializeProps & { setIsSe
         });
       } else {
         const response = await initializeWhatsAppSession(getToken());
-        if (response?.message === "ok") {
+        if (response?.message === "ok" || response?.message === "Sesión de WhatsApp inicializada") {
           setIsSessionReady(true);
           setIsSessionReadyInternal(true);
           setQrCode(null);
