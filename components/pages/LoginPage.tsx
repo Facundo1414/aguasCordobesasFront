@@ -11,37 +11,38 @@ const LoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
   const router = useRouter();
-  const { setAccessToken, setRefreshToken } = useGlobalContext();
+  const { setAccessToken, setRefreshToken, setUsernameGlobal } = useGlobalContext();
   
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+  
     try {
       const loginResult = await userLogin(username, password);
-
+  
+      // Guardar los datos en el estado global/local
       setAccessToken(loginResult.accessToken);
       setRefreshToken(loginResult.refreshToken);
-
+      setUsernameGlobal(loginResult.username); // Guardar el username
+  
       localStorage.setItem('accessToken', loginResult.accessToken);
       localStorage.setItem('refreshToken', loginResult.refreshToken);
-
+      localStorage.setItem('username', loginResult.username); // Guardar el username en localStorage
+  
       Cookies.set('accessToken', loginResult.accessToken, { expires: 1 });
       Cookies.set('refreshToken', loginResult.refreshToken, { expires: 1 });
-
-      initializeWhatsAppSession(loginResult.accessToken)
-
+  
+      initializeWhatsAppSession(loginResult.accessToken);
+  
       toast({
-        title: 'Inicio de sesión exitoso',
+        title: `¡Bienvenido, ${loginResult.username}!`,
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
-
-      router.push("/")
-
-
+  
+      router.push("/");
     } catch (error) {
       console.error("Error de inicio de sesión:", error);
       toast({

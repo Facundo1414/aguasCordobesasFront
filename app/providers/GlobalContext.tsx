@@ -10,6 +10,8 @@ interface GlobalContextType {
   refreshToken: string | null;
   setRefreshToken: (token: string) => void;
   getToken: () => string | null;
+  usernameGlobal: string,
+  setUsernameGlobal: (username: string) => void;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -18,6 +20,7 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   const [excelFileByUser, setExcelFileByUserState] = useState<{ data: ExcelRow[]; fileName: string; isSentOrUsed: boolean } | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [usernameGlobal, setUsernameGlobal] = useState('');
 
 
   const setExcelFileByUser = (file: { data: ExcelRow[]; fileName: string; isSentOrUsed: boolean }) => {
@@ -47,7 +50,9 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
         setAccessToken,
         refreshToken,
         setRefreshToken,
-        getToken
+        getToken,
+        usernameGlobal,
+        setUsernameGlobal
       }}
     >
       {children}

@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaHome as HomeIcon, FaCloudUploadAlt as UploadIcon } from 'react-icons/fa';
-import { Box, Flex, Button, Avatar, Image, Drawer, DrawerBody, DrawerOverlay, DrawerContent, DrawerCloseButton, useDisclosure, Text, Stack } from '@chakra-ui/react';
+import { FaHome as HomeIcon } from 'react-icons/fa';
+import { Box, Flex, Button, Avatar, Image, Drawer, DrawerBody, DrawerOverlay, DrawerContent, DrawerCloseButton, useDisclosure, Text, Stack, Spinner } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import Cookies from 'js-cookie';
@@ -12,23 +12,29 @@ import { userLogout } from '@/app/services/apiService';
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
-  const { setAccessToken, setRefreshToken } = useGlobalContext(); // Obtén las funciones del contexto
+  const { setAccessToken, setRefreshToken, usernameGlobal, setUsernameGlobal } = useGlobalContext();
+  
+  const [isLoggingOut, setIsLoggingOut] = useState(false); // Nuevo estado para manejar la carga
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("accessToken")
+    setIsLoggingOut(true); // Activar el estado de carga
+
+    const token = localStorage.getItem("accessToken");
     if (token) {
-      await userLogout(token)
+      await userLogout(token); // Llamada API para cerrar sesión
     }
 
     // Eliminar tokens del localStorage
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('username');
 
     // Limpiar el contexto
     setAccessToken("");
     setRefreshToken("");
+    setUsernameGlobal("");
 
-      // Eliminar cookies
+    // Eliminar cookies
     Cookies.remove('accessToken');
     Cookies.remove('refreshToken');
 
@@ -76,9 +82,15 @@ export default function Navbar() {
         <DrawerContent>
           <DrawerCloseButton />
           <DrawerBody padding={6} gap={6}>
-            <Text>Bienvenido, </Text>
-            <Button mt={4} colorScheme="teal" onClick={handleLogout}>
-              Cerrar sesión
+            <Text>Bienvenido, {usernameGlobal}</Text>
+            <Button
+              mt={4}
+              colorScheme="teal"
+              onClick={handleLogout}
+              isLoading={isLoggingOut} // Activar el estado de carga en el botón
+              loadingText="Cerrando sesión..." // Texto mientras se espera
+            >
+              {isLoggingOut ? <Spinner size="sm" color="white" /> : 'Cerrar sesión'} {/* Mostrar spinner si está cargando */}
             </Button>
           </DrawerBody>
         </DrawerContent>
