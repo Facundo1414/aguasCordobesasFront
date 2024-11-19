@@ -7,13 +7,19 @@ import { Box, Flex, Button, Avatar, Image, Drawer, DrawerBody, DrawerOverlay, Dr
 import { useRouter } from 'next/navigation';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import Cookies from 'js-cookie';
+import { userLogout } from '@/app/services/apiService';
 
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const { setAccessToken, setRefreshToken } = useGlobalContext(); // Obtén las funciones del contexto
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const token = localStorage.getItem("accessToken")
+    if (token) {
+      await userLogout(token)
+    }
+
     // Eliminar tokens del localStorage
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');

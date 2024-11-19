@@ -2,7 +2,8 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api: AxiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
-  withCredentials: true
+  withCredentials: true,
+  timeout: 180000,
 });
 
 
@@ -181,13 +182,23 @@ export const userLogin = async (username: string, password: string) => {
   }
 };
 
-export const userLogout = async () => {
+export const userLogout = async (token: string) => {
   try {
-    await api.post('/auth/logout');
+    await api.post(
+      '/auth/logout',
+      {}, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
   } catch (error) {
     console.error('Error en logout:', error);
+    alert('Error al cerrar sesión. Por favor, intente de nuevo.');
   }
 };
+
 
 
 export const checkFileStatus = async (fileName: string, token: string) => {
@@ -227,6 +238,20 @@ export const checkValidateToken = async (token: string): Promise<boolean> => {
   }
 };
 
+export const refreshToken = async (refreshToken: string) => {
 
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
+
+  try {
+    const response = await axios.post(`/auth/refresh`, { refreshToken });
+
+    return response.data.accessToken;
+  } catch (error) {
+    console.error('Error refreshing token', error);
+    throw new Error('Error refreshing token');
+  }
+};
 
 export default api;

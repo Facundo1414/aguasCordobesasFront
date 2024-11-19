@@ -9,10 +9,6 @@ const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [qrCode, setQrCode] = useState<string | null>(null);
-  const [isLoadingQr, setIsLoadingQr] = useState(false);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const toast = useToast();
   const router = useRouter();
   const { setAccessToken, setRefreshToken } = useGlobalContext();
@@ -32,7 +28,7 @@ const LoginPage = () => {
       localStorage.setItem('refreshToken', loginResult.refreshToken);
 
       Cookies.set('accessToken', loginResult.accessToken, { expires: 1 });
-      Cookies.set('refreshToken', loginResult.refreshToken, { expires: 7 });
+      Cookies.set('refreshToken', loginResult.refreshToken, { expires: 1 });
 
       initializeWhatsAppSession(loginResult.accessToken)
 
