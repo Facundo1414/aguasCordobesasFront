@@ -47,27 +47,25 @@ const FinalizeProcessComponent: React.FC<FinalizeProcessComponentProps> = ({ fil
     };
 
     const handleDownloadBlob = () => {
-        if (fileProcessed) {
-          // Verifica si el archivo procesado es de tipo Excel
+      if (fileProcessed) {
           if (fileProcessed.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || fileProcessed.name.endsWith('.xlsx')) {
-            // Si es un archivo Excel, lo descarga directamente
-            const url = URL.createObjectURL(fileProcessed);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileProcessed.name;
-            a.click();
+              const url = URL.createObjectURL(fileProcessed);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = fileProcessed.name;
+              a.click();
           } else {
-            // Si no es un archivo Excel, puedes mostrar un error o mensaje de advertencia
-            toast({
-              title: 'Error',
-              description: 'El archivo no es un archivo Excel válido.',
-              status: 'error',
-              duration: 5000,
-              isClosable: true,
-            });
+              toast({
+                  title: 'Error',
+                  description: 'El archivo no es un archivo Excel válido.',
+                  status: 'error',
+                  duration: 5000,
+                  isClosable: true,
+              });
           }
-        }
-      };
+      }
+  };
+  
       
 
     const onGoBackHome = () => {

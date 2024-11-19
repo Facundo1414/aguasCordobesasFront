@@ -43,8 +43,8 @@ const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProce
       setProcessComplete(true);
 
       if (response?.file) {
-        const fileBlob = new Blob([response.file], { type: 'application/pdf' });
-        const file = new File([fileBlob], 'processed-file.pdf');
+        const fileBlob = new Blob([response.file], { type: 'application/xlsx' });
+        const file = new File([fileBlob], 'Deudas-No-Enviadas.xlsx');
         setFile(file)
       }
 
@@ -110,8 +110,10 @@ const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProce
         {isLoading ? (
           <Flex direction="column" align="center" mb={4} justifyContent={"center"} alignItems={"center"} gap={4}>
             <Loader />
-            <Text mt={2} fontSize="lg" color="gray.600" >
-              Enviando archivos PDF a los clientes por whatsapp, por favor espera...
+            <Text mt={2} fontSize="lg" color="gray.600">
+              Enviando archivos PDF a los clientes por WhatsApp. Por favor, espera...
+              <br />
+              Puedes seguir el envío de las deudas desde la aplicación WhatsApp Web en tu celular.
             </Text>
           </Flex>
         ) : (
