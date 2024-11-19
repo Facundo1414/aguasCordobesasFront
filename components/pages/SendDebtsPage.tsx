@@ -28,7 +28,7 @@ import FinalizeProcessComponent from '../filterPageComponents/FinalizeProcessCom
 
 
 
-export default function UploadPage() {
+export default function SendDebtsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [excelData, setExcelData] = useState<ExcelRow[] | null>(null);
   const [fileProcessed, setFileProcessed] = useState<File | null>(null);

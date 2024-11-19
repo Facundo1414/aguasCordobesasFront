@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Grid, GridItem, Heading, Text, Image, Flex, IconButton } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Heading, Text, Image, Flex, IconButton, useToast } from '@chakra-ui/react';
 import { ChevronRightIcon, EmailIcon, PhoneIcon, PlusSquareIcon, QuestionIcon } from '@chakra-ui/icons';
 import ModalEnDesarrollo from '../homeComponents/ModalEnDesarrollo';
 import { useRouter } from 'next/navigation';
@@ -9,13 +9,17 @@ import WhatsappSesionIntialize from '../homeComponents/WhatsappSesionIntializeMo
 import { motion } from 'framer-motion';  // Importar motion
 import Link from 'next/link';
 
-// Usamos motion.div en lugar de Box para las tarjetas y modales
+interface LoginResponse {
+  isLoggedIn: boolean;
+}
+
 
 export default function HomePage() {
   const router = useRouter();
   const [isServicio2ModalOpen, setIsServicio2ModalOpen] = useState(false);
   const [isEnDesarrolloModalOpen, setIsEnDesarrolloModalOpen] = useState(false);
   const [isSessionReady, setIsSessionReady] = useState(false);
+  const toast = useToast()
 
   const handleOpenServicio2Modal = () => setIsServicio2ModalOpen(true);
   const handleCloseServicio2Modal = () => setIsServicio2ModalOpen(false);
@@ -27,21 +31,33 @@ export default function HomePage() {
   const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
 
   const handleClick = async () => {
-    if (isSessionReady) {
-      router.push('/upload-page');
-    } else {
-      try {
-        const response = await getIsLoggedIn(getToken());
-        if (response.isLoggedIn) {
-          router.push('/upload-page');
-        } else {
-          handleOpenServicio2Modal();
-        }
-      } catch (error) {
-        console.error("Error al verificar el estado de inicio de sesión:", error);
+  
+    // Obtener el token (asegúrate de que esta función esté funcionando correctamente)
+    const token = getToken();
+  
+    // Llamar a la API para verificar si el usuario está logueado
+    const promise = getIsLoggedIn(token);
+  
+    // Mostrar el toast con promesa
+    toast.promise(promise, {
+      loading: { title: 'Verificando sesión...', description: 'Por favor espere...' },
+      success: { title: 'Sesión verificada', description: 'Redirigiendo...', duration: 1000 },
+      error: { title: 'Error', description: 'No se pudo verificar el estado de la sesión', duration: 2000 },
+    });
+  
+    // Esperar a que la promesa se resuelva y manejar la respuesta
+    try {
+      const response: LoginResponse = await promise;
+      if (response.isLoggedIn) {
+        router.push('/send-debts-page');
+      } else {
+        handleOpenServicio2Modal();
       }
+    } catch (error) {
+      console.error("Error al verificar el estado de inicio de sesión:", error);
     }
   };
+  
 
   return (
     <Box py={10} px={[4, 8, 20]}>
