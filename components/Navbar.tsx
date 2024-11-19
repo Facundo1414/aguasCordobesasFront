@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaHome as HomeIcon } from 'react-icons/fa';
 import { Box, Flex, Button, Avatar, Image, Drawer, DrawerBody, DrawerOverlay, DrawerContent, DrawerCloseButton, useDisclosure, Text, Stack, Spinner } from '@chakra-ui/react';
@@ -12,12 +12,20 @@ import { userLogout } from '@/app/services/apiService';
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
-  const { setAccessToken, setRefreshToken, usernameGlobal, setUsernameGlobal } = useGlobalContext();
-  
-  const [isLoggingOut, setIsLoggingOut] = useState(false); // Nuevo estado para manejar la carga
+  const { setAccessToken, setRefreshToken, usernameGlobal, setUsernameGlobal } = useGlobalContext();  
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    if (!usernameGlobal) {
+      const usernameFromLocalStorage = localStorage.getItem("username");
+      if (usernameFromLocalStorage) {
+        setUsernameGlobal(usernameFromLocalStorage);
+      }
+    }
+  }, [usernameGlobal, setUsernameGlobal]);
 
   const handleLogout = async () => {
-    setIsLoggingOut(true); // Activar el estado de carga
+    setIsLoggingOut(true); 
 
     const token = localStorage.getItem("accessToken");
     if (token) {
