@@ -1,9 +1,17 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+const https = require('https');
+const agent = new https.Agent({ rejectUnauthorized: false });
 const api: AxiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
   withCredentials: true,
   timeout: 180000,
+  headers: {
+    'Accept': 'application/json, text/plain, */*',
+    'Authorization': `Bearer ${process.env.JWT_TOKEN}`,
+  },
+  httpsAgent: agent, // Deshabilita validación SSL
+
 });
 
 
