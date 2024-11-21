@@ -7,7 +7,6 @@ import { getIsLoggedIn } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import WhatsappSesionIntialize from '../homeComponents/WhatsappSesionIntializeModal';
 import { motion } from 'framer-motion';  // Importar motion
-import Link from 'next/link';
 
 interface LoginResponse {
   isLoggedIn: boolean;
@@ -32,29 +31,31 @@ export default function HomePage() {
 
   const handleClick = async () => {
   
-    // Obtener el token (asegúrate de que esta función esté funcionando correctamente)
     const token = getToken();
   
     // Llamar a la API para verificar si el usuario está logueado
-    const promise = getIsLoggedIn(token);
-  
-    // Mostrar el toast con promesa
-    toast.promise(promise, {
-      loading: { title: 'Verificando sesión...', description: 'Por favor espere...' },
-      success: { title: 'Sesión verificada', description: 'Redirigiendo...', duration: 1000 },
-      error: { title: 'Error', description: 'No se pudo verificar el estado de la sesión', duration: 2000 },
-    });
-  
-    // Esperar a que la promesa se resuelva y manejar la respuesta
-    try {
-      const response: LoginResponse = await promise;
-      if (response.isLoggedIn) {
-        router.push('/send-debts-page');
-      } else {
-        handleOpenServicio2Modal();
+    if (!isSessionReady) {
+      const promise = getIsLoggedIn(token);
+      // Mostrar el toast con promesa
+      toast.promise(promise, {
+        loading: { title: 'Verificando sesión...', description: 'Por favor espere...' },
+        success: { title: 'Sesión verificada', description: 'Redirigiendo...', duration: 1000 },
+        error: { title: 'Error', description: 'No se pudo verificar el estado de la sesión', duration: 2000 },
+      });
+      // Esperar a que la promesa se resuelva y manejar la respuesta
+      try {
+        const response: LoginResponse = await promise;
+        if (response.isLoggedIn) {
+          router.push('/send-debts-page');
+        } else {
+          handleOpenServicio2Modal();
+        }
+      } catch (error) {
+        console.error("Error al verificar el estado de inicio de sesión:", error);
       }
-    } catch (error) {
-      console.error("Error al verificar el estado de inicio de sesión:", error);
+    }
+    else{
+      router.push('/send-debts-page');
     }
   };
   

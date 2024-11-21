@@ -18,6 +18,8 @@ body {
 /* Estilos para pantallas pequeñas (móviles y tablets) */
 @media (max-width: 1024px) {
   body {
-    display: none; /* Ocultar el contenido en pantallas pequeñas */
+    display: none; 
+    /* Ocultar el contenido en pantallas pequeñas */
   }
+  
 }
