@@ -11,30 +11,49 @@ const BackendLogComponent = () => {
   
 
   useEffect(() => {
-    const socket = io("http://localhost:3000", {
+    const socket = io(process.env.NEXT_PUBLIC_API_URL ?? "", {
       extraHeaders: {
         Authorization: `Bearer ${getToken()}`,
       },
+      reconnectionAttempts: 5,  // Número de intentos antes de dar por fallida la reconexión
+      reconnectionDelay: 1000,  // Tiempo entre reconexiones (en ms)
+      reconnectionDelayMax: 5000, // Retardo máximo para reconectar
     });
-    
-
+  
     socket.on('connect', () => {
       setIsConnected(true);
+      const userId = getToken();
+      socket.emit('connectUser', userId);
     });
 
+    socket.on('connect_error', (error) => {
+      console.error('Error al conectar:', error);
+    });
+  
     socket.on('log', (message: string) => {
+      console.log('Recibiendo log:', message);
       setLogs((prevLogs) => [...prevLogs, message]);
     });
-
+  
     socket.on('disconnect', () => {
       setIsConnected(false);
+      console.log('Desconectado del servidor');
     });
-
-    // Cleanup al desmontar el componente
+  
+    // Intentar reconectar
+    socket.on('reconnect', () => {
+      console.log('Reconectado al servidor');
+    });
+  
+    socket.on('reconnect_error', (error) => {
+      console.error('Error en la reconexión:', error);
+    });
+  
     return () => {
       socket.disconnect();
     };
   }, [getToken]);
+  
 
   return (
     <Box

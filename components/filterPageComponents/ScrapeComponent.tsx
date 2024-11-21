@@ -108,14 +108,25 @@ const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProce
         </Heading>
 
         {isLoading ? (
-          <Flex direction="column" align="center" mb={4} justifyContent={"center"} alignItems={"center"} gap={4}>
+          <Flex 
+          direction="column" 
+          align="center" 
+          justify="center" 
+          gap={6} 
+          p={6} 
+          maxWidth="400px"
+          mx="auto"
+        >
+          <Box display="flex" justifyContent="center" alignItems="center">
             <Loader />
-            <Text mt={2} fontSize="lg" color="gray.600">
-              Enviando archivos PDF a los clientes por WhatsApp. Por favor, espera...
-              <br />
-              Puedes seguir el envío de las deudas desde la aplicación WhatsApp Web en tu celular.
-            </Text>
-          </Flex>
+          </Box>
+          <Text fontSize="lg" color="gray.700" textAlign="center">
+            Enviando archivos PDF a los clientes por WhatsApp. Puedes seguir el envío de las deudas desde la aplicación WhatsApp Web en tu celular.
+          </Text>
+          <Text fontSize="lg" color="gray.600" textAlign="center" mt={2}>
+            Por favor, espera...
+          </Text>
+        </Flex>
         ) : (
           <ScaleFade in={!processComplete} initialScale={0.4}>
             {!processComplete && (
@@ -139,7 +150,6 @@ const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProce
                     <Button
                       bg="blue.500" color="white" rounded="lg" _hover={{ bg: "blue.300" }} minWidth="120px"
                       onClick={handleScrapeProcess}
-                      mb={4}
                       width="40%"
                     >
                       Iniciar Envio
