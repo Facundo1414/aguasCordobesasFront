@@ -36,20 +36,28 @@ const WhatsappSesionIntialize: React.FC<WhatsappSesionIntializeProps & { setIsSe
         });
       } else {
         const response = await initializeWhatsAppSession(getToken());
-        if (response?.message === "ok" || response?.message === "Sesión de WhatsApp inicializada") {
-          setIsSessionReady(true);
-          setIsSessionReadyInternal(true);
-          setQrCode(null);
+        if (response?.qrCode) {
+          setIsSessionReady(false);
+          setIsSessionReadyInternal(false);
           setIsLoadingQr(false);
-          toast({
-            title: 'Sesión en WhatsApp iniciada con éxito.',
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-          });
-        } else if (response?.qrCode) {
-          setQrCode(response.qrCode);
-          setIsLoadingQr(false);
+          setQrCode(response?.qrCode);
+        }
+        else{
+          if (response?.message === "SessionActive" || response?.message === "Sesión de WhatsApp inicializada") {
+            setIsSessionReady(true);
+            setIsSessionReadyInternal(true);
+            setQrCode(null);
+            setIsLoadingQr(false);
+            toast({
+              title: 'Sesión en WhatsApp iniciada con éxito.',
+              status: 'success',
+              duration: 3000,
+              isClosable: true,
+            });
+          } else if (response?.qrCode) {
+            setQrCode(response.qrCode);
+            setIsLoadingQr(false);
+          }
         }
       }
     } catch (error) {
