@@ -1,9 +1,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api: AxiosInstance = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
+  // baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
+  baseURL: `http://localhost:3000/api`,
   withCredentials: true, 
-  timeout: 180000,
+  timeout: 1800000,
 });
 
 
@@ -82,6 +83,51 @@ export const initializeWhatsAppSession = async (token?: string): Promise<{ clien
 };
 
 
+// Función para obtener el QR
+export const fetchQrCode = async (token?: string) => {
+  if (!token) {
+    console.error('Token is missing');
+    return null;
+  }
+
+  try {
+    const config: AxiosRequestConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    // Hacer la solicitud GET utilizando axios
+    const response = await api.get('/whatsapp/get-qr', config);
+
+    // Validar si la respuesta contiene el código QR (como un string)
+    if (response.data?.qrCode) {
+      return response.data.qrCode;  // El código QR debe ser una URL o un string con la imagen
+    } else {
+      console.error('QR code not found in response');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching QR code:', error);
+    return null;
+  }
+};
+
+
+
+export const checkInitializationStatus = async (token?: string) => {
+  try {
+    const config: AxiosRequestConfig = {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    };
+    const response: AxiosResponse<any> = await api.get('/whatsapp/is-initializing', config);
+    return response.data;
+  } catch (error) {
+    throw new Error('Error al verificar estado de inicialización');
+  }
+};
 
 
 // Subir un archivo Excel

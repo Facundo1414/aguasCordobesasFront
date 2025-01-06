@@ -23,6 +23,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.11.17",
+    "http-proxy-middleware": "^3.0.3",
     "js-cookie": "^3.0.5",
     "my-nextjs-project": "file:",
     "next": "^14.2.16",

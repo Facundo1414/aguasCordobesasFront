@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Box, Grid, GridItem, Heading, Text, Image, Flex, IconButton, useToast } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { Box, Grid, GridItem, Heading, Text, Image, Flex, IconButton, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, Spinner, ModalFooter, Button } from '@chakra-ui/react';
 import { ChevronRightIcon, EmailIcon, PhoneIcon, PlusSquareIcon, QuestionIcon } from '@chakra-ui/icons';
 import ModalEnDesarrollo from '../homeComponents/ModalEnDesarrollo';
 import { useRouter } from 'next/navigation';
-import { getIsLoggedIn } from '@/app/services/apiService';
+import { checkInitializationStatus, getIsLoggedIn } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import WhatsappSesionIntialize from '../homeComponents/WhatsappSesionIntializeModal';
 import { motion } from 'framer-motion';  // Importar motion
@@ -11,15 +11,22 @@ import { motion } from 'framer-motion';  // Importar motion
 interface LoginResponse {
   isLoggedIn: boolean;
 }
+interface isInitializingResponse {
+  isInitializing: boolean;
+}
 
 
 export default function HomePage() {
   const router = useRouter();
   const [isServicio2ModalOpen, setIsServicio2ModalOpen] = useState(false);
   const [isEnDesarrolloModalOpen, setIsEnDesarrolloModalOpen] = useState(false);
+  const [isInitializationModalOpen, setIsInitializationModalOpen] = useState(false);
   const [isSessionReady, setIsSessionReady] = useState(false);
   const toast = useToast()
 
+  const handleOpenInitializationModal = () => setIsInitializationModalOpen(true);
+  const handleCloseInitializationModal = () => setIsInitializationModalOpen(false);
+  
   const handleOpenServicio2Modal = () => setIsServicio2ModalOpen(true);
   const handleCloseServicio2Modal = () => setIsServicio2ModalOpen(false);
 
@@ -28,6 +35,31 @@ export default function HomePage() {
 
   const { accessToken } = useGlobalContext();
   const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
+
+
+  const checkInitialization = async () => {
+    if (!isSessionReady) {
+      setIsInitializationModalOpen(true); // Abre el modal mientras verifica
+      const token = getToken();
+      try {
+        const response: isInitializingResponse = await checkInitializationStatus(token);
+        if (response.isInitializing) {
+          setIsSessionReady(true);
+        }
+      } catch (error) {
+        console.error("Error al verificar el estado de inicio de sesión:", error);
+      } finally {
+        // Agregar un ligero retraso para garantizar visibilidad
+        setTimeout(() => setIsInitializationModalOpen(false), 500); 
+      }
+    }
+  };
+  
+
+  useEffect(()=>{
+    checkInitialization()
+  },[])
+  
 
   const handleClick = async () => {
   
@@ -47,9 +79,7 @@ export default function HomePage() {
         const response: LoginResponse = await promise;
         if (response.isLoggedIn) {
           router.push('/send-debts-page');
-        } else {
-          handleOpenServicio2Modal();
-        }
+        } 
       } catch (error) {
         console.error("Error al verificar el estado de inicio de sesión:", error);
       }
@@ -265,6 +295,23 @@ export default function HomePage() {
 
       {/* Modal en Desarrollo */}
       <ModalEnDesarrollo isOpen={isEnDesarrolloModalOpen} onClose={handleCloseEnDesarrolloModal} />
+
+            {/* Modal de inicialización */}
+      <Modal isOpen={isInitializationModalOpen} onClose={handleCloseInitializationModal} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Verificando sesión de Whatsapp</ModalHeader>
+          <ModalBody display="flex" justifyContent="center" alignItems="center">
+            <Spinner size="lg" />
+            <Text ml={4}>Por favor espere mientras verificamos la sesión...</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={handleCloseInitializationModal} variant="ghost">
+              Cerrar
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

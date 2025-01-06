@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useToast, Flex, Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@chakra-ui/react';
-import { getIsLoggedIn, initializeWhatsAppSession } from '@/app/services/apiService';
+import { useToast, Flex, Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Spinner } from '@chakra-ui/react';
+import { fetchQrCode, getIsLoggedIn } from '@/app/services/apiService';
 import { useGlobalContext } from '@/app/providers/GlobalContext';
 import QrCodeDisplay from '../filterPageComponents/QRCodeDisplay';
 
@@ -9,8 +9,6 @@ interface WhatsappSesionIntializeProps {
   onClose: () => void;
 }
 
-const MAX_QR_ATTEMPTS = 5; // Máximo número de intentos para obtener el código QR
-
 const WhatsappSesionIntialize: React.FC<WhatsappSesionIntializeProps & { setIsSessionReady: (value: boolean) => void }> = ({ isOpen, onClose, setIsSessionReady }) => {
   const { accessToken } = useGlobalContext();
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -18,59 +16,47 @@ const WhatsappSesionIntialize: React.FC<WhatsappSesionIntializeProps & { setIsSe
   const [isSessionReady, setIsSessionReadyInternal] = useState(false);
   const toast = useToast();
 
+  const showToast = (title: string, description: string, status: 'info' | 'success' | 'error') => {
+    toast({
+      title,
+      description,
+      status,
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
+  const handleSessionActive = () => {
+    setIsSessionReady(true);
+    setIsSessionReadyInternal(true);
+    setQrCode(null);
+    setIsLoadingQr(false);
+    showToast('Sesión en WhatsApp ya iniciada.', '', 'info');
+  };
+
   const initializeWsp = useCallback(async () => {
-    const getToken = () => accessToken || localStorage.getItem('accessToken') || '';
+    const token = accessToken || localStorage.getItem('accessToken') || '';
 
     try {
-      const responsecheck = await getIsLoggedIn(getToken());
-      if (responsecheck.isLoggedIn) {
-        setIsSessionReady(true); // Establecer sesión lista
-        setIsSessionReadyInternal(true);
-        setQrCode(null);
-        setIsLoadingQr(false);
-        toast({
-          title: 'Sesión en WhatsApp ya iniciada.',
-          status: 'info',
-          duration: 3000,
-          isClosable: true,
-        });
+
+      if (isSessionReady) {
+        handleSessionActive();
       } else {
-        const response = await initializeWhatsAppSession(getToken());
-        if (response?.qrCode) {
-          setIsSessionReady(false);
-          setIsSessionReadyInternal(false);
+        const qrResponse = await fetchQrCode(token);
+
+        if (qrResponse) {
+          setQrCode(qrResponse);
           setIsLoadingQr(false);
-          setQrCode(response?.qrCode);
-        }
-        else{
-          if (response?.message === "SessionActive" || response?.message === "Sesión de WhatsApp inicializada") {
-            setIsSessionReady(true);
-            setIsSessionReadyInternal(true);
-            setQrCode(null);
-            setIsLoadingQr(false);
-            toast({
-              title: 'Sesión en WhatsApp iniciada con éxito.',
-              status: 'success',
-              duration: 3000,
-              isClosable: true,
-            });
-          } else if (response?.qrCode) {
-            setQrCode(response.qrCode);
-            setIsLoadingQr(false);
-          }
+        } else {
+          setIsLoadingQr(false);
+          showToast('Error al obtener el QR.', '', 'error');
         }
       }
     } catch (error) {
       console.error('Error en la inicialización de WhatsApp:', error);
-      toast({
-        title: 'Error al iniciar sesión en WhatsApp',
-        description: 'Intente nuevamente más tarde.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+      showToast('Error al iniciar sesión en WhatsApp', 'Intente nuevamente más tarde.', 'error');
     }
-  }, [accessToken, toast]);
+  }, [accessToken]);
 
   useEffect(() => {
     if (isOpen) {
@@ -82,37 +68,35 @@ const WhatsappSesionIntialize: React.FC<WhatsappSesionIntializeProps & { setIsSe
     isOpen && (
       <Flex flexDirection="column" alignItems="center">
         {isSessionReady ? (
-          // Si la sesión está lista, mostramos el mensaje
           <Modal isOpen={isOpen} onClose={onClose} isCentered>
             <ModalOverlay />
-            <ModalContent boxSize={500}>
+            <ModalContent>
               <ModalHeader>Sesión activa en WhatsApp</ModalHeader>
-              <ModalBody display="flex" justifyContent="center" alignItems="center">
+              <ModalBody>
                 <Text fontSize="lg">No es necesario iniciar sesión nuevamente.</Text>
               </ModalBody>
               <ModalFooter>
-                <Button colorScheme="red" onClick={onClose}>Cerrar</Button>
+                <Button colorScheme="red" onClick={onClose}>
+                  Cerrar
+                </Button>
               </ModalFooter>
             </ModalContent>
           </Modal>
         ) : (
-          // Si no está lista, mostramos el QR
-          <QrCodeDisplay
-            qrCode={qrCode}
-            isLoadingQr={isLoadingQr}
-            isModalOpen={isOpen}
-            onClose={onClose}
-            onQrScanSuccess={() => {
-              toast({
-                title: 'Inicio de sesión exitoso',
-                status: 'success',
-                duration: 3000,
-                isClosable: true,
-              });
-              setIsSessionReady(true);
-              onClose();
-            }}
-          />
+          <>
+            <QrCodeDisplay
+              qrCode={qrCode}
+              isLoadingQr={isLoadingQr}
+              isModalOpen={isOpen}
+              onClose={onClose}
+              onQrScanSuccess={() => {
+                showToast('Inicio de sesión exitoso', '', 'success');
+                setIsSessionReady(true);
+                onClose();
+              }}
+            />
+            {isLoadingQr && <Spinner size="lg" />}
+          </>
         )}
       </Flex>
     )
