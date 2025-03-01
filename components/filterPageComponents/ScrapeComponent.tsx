@@ -86,7 +86,7 @@ const ScrapeComponent: React.FC<ScrapeComponentProps> = ({ filePath, onFileProce
     >
       {/* Columna izquierda: Componente de log */}
       <Box flex="1" borderRadius="md" overflowY="hidden" maxHeight="400px" py={2}>
-        <BackendLogComponent />
+        {/* <BackendLogComponent /> */}
       </Box>
 
       {/* Columna derecha: Contenido principal */}
